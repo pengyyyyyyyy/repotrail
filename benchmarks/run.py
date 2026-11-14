@@ -10,8 +10,9 @@ from pathlib import Path
 from repotrail.engine import generate
 from repotrail.export import write_json
 from repotrail.index import build_index
-from repotrail.llm import ModelClient, Settings
+from repotrail.llm import ModelClient
 from repotrail.models import Flow
+from repotrail.provider import ProviderStore
 
 
 def verify_case(case, index):
@@ -39,7 +40,7 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, default=Path("benchmarks/results"))
     args = parser.parse_args(argv)
     manifest = json.loads(Path(__file__).with_name("cases.json").read_text(encoding="utf-8"))
-    settings = Settings.from_env() if args.mode == "compare" else None
+    settings = ProviderStore(Path.cwd() / ".repotrail").current() if args.mode == "compare" else None
     if settings:
         ModelClient(settings)  # Fail before processing when credentials are absent.
     results = []

@@ -3,17 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f8f8">
-  <title>RepoTrail · 源码阅读工作区</title>
+  <meta name="theme-color" content="#f7f7f4">
+  <title>RepoTrail · 仓库阅读</title>
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="/" aria-label="RepoTrail 首页"><span class="brand-mark" aria-hidden="true"></span>RepoTrail</a>
-    <span class="workspace-label">源码阅读工作区</span>
+    <span class="workspace-label">阅读工作区</span>
     <div class="top-actions">
-      <span id="model-status" class="meta">检查模型配置</span>
+      <button id="provider-settings" class="model-button">
+        <span class="status-dot" id="model-dot"></span><span id="model-status">API 接入</span><span aria-hidden="true">⌄</span>
+      </button>
       <button id="open-repository" class="button primary">打开仓库 <span aria-hidden="true">↗</span></button>
     </div>
   </header>
@@ -21,30 +23,34 @@
   <div class="app-shell">
     <aside class="sidebar" aria-label="仓库导航">
       <div class="repo-identity">
-        <div class="repo-avatar" aria-hidden="true">/</div>
-        <div><div id="repo-name" class="repo-name">载入示例</div><div id="repo-revision" class="meta mono">源码快照</div></div>
+        <span class="repo-avatar mono" aria-hidden="true">/</span>
+        <div><div id="repo-name">Paperplane</div><div id="repo-revision" class="meta mono"></div></div>
       </div>
-      <div class="sidebar-section">
-        <h2>候选流程 <span id="flow-count" class="meta mono"></span></h2>
+      <section class="sidebar-section">
+        <h2>阅读起点 <span id="flow-count" class="meta mono"></span></h2>
         <div id="flows" class="flows"></div>
-        <button id="generate" class="button generate" disabled>生成所选导览 <span aria-hidden="true">→</span></button>
-      </div>
-      <div class="sidebar-section modules-section">
-        <h2>模块地图 <span id="file-count" class="meta mono"></span></h2>
+        <button id="generate" class="button generate" disabled>生成导览 <span aria-hidden="true">→</span></button>
+      </section>
+      <section class="sidebar-section modules-section">
+        <h2>文件 <span id="file-count" class="meta mono"></span></h2>
         <div id="modules" class="modules"></div>
-      </div>
+      </section>
       <div class="sidebar-foot">
-        <button id="load-demo" class="text-button">打开离线示例</button>
-        <p>基于源码快照阅读<br>静态关系仍需结合运行行为核对</p>
+        <button id="load-demo" class="text-button">示例仓库 <span aria-hidden="true">↗</span></button>
+        <button id="sidebar-settings" class="text-button">API 接入与模型 <span aria-hidden="true">↗</span></button>
       </div>
     </aside>
 
     <main>
-      <div class="breadcrumb"><span>工作区</span><span aria-hidden="true">/</span><span id="breadcrumb-repo">Paperplane</span><span aria-hidden="true">/</span><span>阅读路线</span></div>
+      <div class="breadcrumb"><span>工作区</span><span aria-hidden="true">/</span><span id="breadcrumb-repo">Paperplane</span></div>
       <section class="page-heading">
-        <div><div id="mode-label" class="mode-label">离线示例 · 未调用模型</div><h1 id="trail-title">正在载入源码导览</h1><p id="trail-summary" class="summary"></p></div>
+        <div>
+          <div id="mode-label" class="eyebrow">示例仓库</div>
+          <h1 id="trail-title">仓库阅读</h1>
+          <p id="trail-summary" class="summary"></p>
+        </div>
         <div class="export-control">
-          <button id="export-button" class="button secondary" aria-expanded="false" aria-controls="export-menu" disabled>导出导览 <span aria-hidden="true">↓</span></button>
+          <button id="export-button" class="button secondary" aria-expanded="false" aria-controls="export-menu" disabled>导出 <span aria-hidden="true">↓</span></button>
           <div id="export-menu" class="export-menu" hidden>
             <a id="export-markdown" download>Markdown</a>
             <a id="export-codetour" download>CodeTour</a>
@@ -54,7 +60,6 @@
       </section>
       <div id="notice" class="notice" role="status" hidden></div>
       <div id="error" class="error" role="alert" hidden></div>
-
       <section id="overview" class="overview" aria-label="仓库概览"></section>
 
       <div id="reading-workspace" class="reading-workspace">
@@ -68,29 +73,75 @@
           </div>
         </section>
         <section class="source-panel" aria-label="源码对照">
-          <div class="source-heading"><span id="source-file" class="mono">源码</span><span id="source-range" class="mono"></span></div>
+          <div class="source-heading">
+            <div class="source-tab"><span class="file-mark mono">py</span><span id="source-file" class="mono">源码</span></div>
+            <span id="source-range" class="mono"></span>
+          </div>
           <div id="source" class="source-code" tabindex="0" aria-label="选中步骤的源码"></div>
-          <div class="source-footer"><span id="source-status">等待选择步骤</span><span id="snapshot-hash" class="mono"></span></div>
+          <div class="source-footer"><span id="source-status">Python</span><span id="snapshot-hash" class="mono"></span></div>
         </section>
       </div>
-
-      <section class="review-section">
-        <div class="review-heading"><h2>证据与待核实部分</h2><span class="meta">说明语义需要人工核对</span></div>
-        <div id="validation" class="validation"></div>
-        <ul id="gaps" class="gaps"></ul>
-      </section>
-      <footer class="page-footer"><span>RepoTrail · 从入口到实现</span><span id="run-metrics" class="mono"></span></footer>
+      <footer class="page-footer"><span>RepoTrail</span><span id="run-metrics" class="mono"></span></footer>
     </main>
   </div>
 
-  <dialog id="repository-dialog">
+  <dialog id="provider-dialog" class="provider-dialog">
+    <div class="provider-layout">
+      <aside class="provider-sidebar">
+        <span class="dialog-kicker">模型设置</span>
+        <h2>API 接入</h2>
+        <div class="provider-presets" aria-label="服务商模板">
+          <button type="button" data-provider="custom" class="provider-preset active">自定义接口<span>Chat Completions</span></button>
+          <button type="button" data-provider="deepseek" class="provider-preset">DeepSeek<span>API Key</span></button>
+          <button type="button" data-provider="openrouter" class="provider-preset">OpenRouter<span>API Key</span></button>
+        </div>
+        <p class="provider-protocol">Chat Completions<br>Function calling</p>
+      </aside>
+      <form id="provider-form" class="provider-form" autocomplete="off">
+        <div class="dialog-heading">
+          <div><h2>连接你的模型</h2><p>填写服务地址与密钥，选择用于阅读仓库的模型</p></div>
+          <button type="button" id="close-provider" class="close-button" aria-label="关闭 API 设置">×</button>
+        </div>
+        <label for="provider-name">连接名称</label>
+        <input id="provider-name" maxlength="80" placeholder="我的模型服务" required>
+        <label for="provider-url">API Base URL</label>
+        <input id="provider-url" type="url" placeholder="https://api.example.com/v1" spellcheck="false" required>
+        <p id="endpoint-preview" class="field-hint mono">/chat/completions</p>
+        <label for="provider-key">API Key</label>
+        <div class="key-control">
+          <input id="provider-key" type="password" placeholder="输入 API Key" autocomplete="off" spellcheck="false">
+          <button type="button" id="toggle-key" class="text-button">显示</button>
+        </div>
+        <div class="label-row">
+          <label for="provider-model">模型 ID</label>
+          <button type="button" id="fetch-models" class="text-button">获取模型列表 ↗</button>
+        </div>
+        <input id="provider-model" list="provider-models" placeholder="输入或选择模型 ID" spellcheck="false" required>
+        <datalist id="provider-models"></datalist>
+        <p id="model-list-status" class="field-hint" hidden></p>
+        <div id="provider-feedback" class="form-feedback" role="status" hidden></div>
+        <div class="dialog-actions">
+          <button type="button" id="test-provider" class="button secondary">测试连接</button>
+          <button type="submit" id="save-provider" class="button primary">保存并使用 →</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="repository-dialog" class="repository-dialog">
     <form id="repository-form">
-      <div class="dialog-heading"><h2>打开 Python 仓库</h2><button type="button" id="close-dialog" class="close-button" aria-label="关闭">×</button></div>
-      <label for="repository-source">GitHub URL 或本地克隆目录</label>
+      <div class="dialog-heading">
+        <div><h2>打开 Python 仓库</h2><p>从一个 GitHub 项目或本地目录开始</p></div>
+        <button type="button" id="close-dialog" class="close-button" aria-label="关闭仓库窗口">×</button>
+      </div>
+      <label for="repository-source">GitHub URL 或本地目录</label>
       <input id="repository-source" name="source" placeholder="https://github.com/owner/repo" required autocomplete="off" spellcheck="false">
-      <p>支持公开仓库，最多 300 个 Python 文件、单文件 200 KB、源码共 4 MB。读取源码并建立快照。</p>
-      <p id="dialog-error" class="error" role="alert" hidden></p>
-      <div class="dialog-actions"><button type="button" id="cancel-dialog" class="button secondary">取消</button><button type="submit" id="analyze-button" class="button primary">分析仓库 →</button></div>
+      <p class="field-hint">支持最多 300 个 Python 文件</p>
+      <p id="dialog-error" class="form-feedback error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" id="cancel-dialog" class="button secondary">取消</button>
+        <button type="submit" id="analyze-button" class="button primary">打开仓库 →</button>
+      </div>
     </form>
   </dialog>
 </body>

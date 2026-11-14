@@ -7,8 +7,9 @@ from pathlib import Path
 from .engine import deterministic_demo, generate
 from .export import codetour, markdown, write_json
 from .index import build_index
-from .llm import ModelClient, Settings
+from .llm import ModelClient
 from .repository import acquire
+from .provider import ProviderStore
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -44,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
             flow = next((item for item in index.flows if item.id == args.flow), None) if args.flow else index.flows[0]
             if flow is None:
                 raise ValueError("指定的 flow 不在候选列表中，请先运行 inspect")
-            result = generate(index, flow, ModelClient(Settings.from_env()), baseline=args.baseline)
+            result = generate(index, flow, ModelClient(ProviderStore(Path.cwd() / ".repotrail").current()), baseline=args.baseline)
         output = Path(args.output)
         write_json(output / "trail.json", result)
         write_json(output / "reading.tour", codetour(result))
