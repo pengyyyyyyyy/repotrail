@@ -256,7 +256,7 @@ def build_index(directory: str | Path, limits: Limits | None = None) -> Reposito
             if any(".route(" in item or ".get(" in item or ".post(" in item
                    for item in decorators):
                 flows.append(Flow(symbol_id, f"{symbol.name} 请求处理", symbol_id,
-                                  "由函数装饰器识别的请求入口候选，需要核对框架语义"))
+                                  "根据函数装饰器识别的请求入口"))
     def entry_rank(symbol: Symbol):
         leaf = symbol.name.split(".")[-1]
         preferred = {"request": 2, "create_app": 3, "run": 4, "get": 5, "post": 6}
@@ -276,7 +276,7 @@ def build_index(directory: str | Path, limits: Limits | None = None) -> Reposito
             if symbol.id in existing:
                 continue
             flows.append(Flow(symbol.id, f"从 {symbol.name} 开始阅读", symbol.id,
-                              "按名称与文件顺序推荐的阅读起点，需要人工核对"))
+                              "按名称与文件顺序推荐的阅读起点"))
     unique = {flow.id: flow for flow in reversed(flows)}
     flows = sorted(unique.values(), key=lambda flow: (
         0 if "project.scripts" in flow.reason else 1,

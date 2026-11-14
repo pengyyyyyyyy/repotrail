@@ -1,5 +1,12 @@
 const $ = (id) => document.getElementById(id);
-const state = { repository: null, trail: null, flow: null, step: 0, job: null, busy: false, modelReady: false, epoch: 0, sourceRequest: 0 };
+const state = { repository: null, trail: null, flow: null, step: 0, job: null,
+  busy: false, modelReady: false, provider: null, providerBusy: false, epoch: 0, sourceRequest: 0 };
+
+const providerPresets = {
+  custom: { name: '兼容 API', base_url: '' },
+  deepseek: { name: 'DeepSeek', base_url: 'https://api.deepseek.com/v1' },
+  openrouter: { name: 'OpenRouter', base_url: 'https://openrouter.ai/api/v1' },
+};
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -23,8 +30,8 @@ function message(id, text) {
 }
 
 function refreshButton() {
-  $('generate').disabled = state.busy || !state.flow || !(state.modelReady || state.repository?.demo);
-  $('generate').textContent = state.busy ? '正在读取与核对源码' : '生成所选导览 →';
+  $('generate').disabled = state.busy || !state.flow;
+  $('generate').textContent = state.busy ? '正在生成导览' : '生成导览 →';
   $('open-repository').disabled = state.busy;
   $('load-demo').disabled = state.busy;
 }
@@ -64,20 +71,20 @@ function renderRepository(repository) {
     const button = element('button', 'module');
     button.type = 'button';
     button.append(element('span', 'module-path', module.file), element('span', 'module-count', module.symbols));
-    button.title = `${module.symbols} 个符号，${module.references} 个静态引用候选`;
+    button.title = `${module.symbols} 个符号`;
     button.addEventListener('click', () => showFile(module.file));
     $('modules').append(button);
   }
   const overview = $('overview');
   overview.replaceChildren();
-  for (const [count, label] of [[repository.file_count, 'Python 文件'], [repository.symbol_count, '可定位符号'], [repository.edge_count, '静态调用候选']]) {
+  for (const [count, label] of [[repository.file_count, 'Python 文件'], [repository.symbol_count, '个符号']]) {
     const item = element('span', 'overview-item');
     item.append(element('strong', '', count), document.createTextNode(label));
     overview.append(item);
   }
-  overview.append(element('span', 'overview-snapshot', `snapshot ${repository.digest.slice(0, 12)}`));
-  $('snapshot-hash').textContent = repository.digest.slice(0, 8);
-  message('notice', repository.demo ? '' : state.modelReady ? '生成时会将所选源码上下文发送到已配置的模型服务' : '已建立源码快照。配置 REPOTRAIL_API_KEY 后重新启动服务，即可生成模型导览');
+  overview.append(element('span', 'overview-snapshot', repository.revision ? `Git ${repository.revision.slice(0, 8)}` : 'Python'));
+  $('snapshot-hash').textContent = 'UTF-8';
+  message('notice', '');
   if (repository.warnings.length) message('notice', repository.warnings.join('；'));
   refreshButton();
 }
@@ -88,11 +95,11 @@ function clearTrail() {
   $('export-button').disabled = true;
   $('export-menu').hidden = true;
   $('export-button').setAttribute('aria-expanded', 'false');
-  for (const id of ['steps', 'step-details', 'validation', 'gaps', 'source']) $(id).replaceChildren();
+  for (const id of ['steps', 'step-details', 'source']) $(id).replaceChildren();
   $('step-count').textContent = '';
   $('source-file').textContent = '源码';
   $('source-range').textContent = '';
-  $('source-status').textContent = '选择候选流程后生成导览';
+  $('source-status').textContent = 'Python';
   $('run-metrics').textContent = '';
   $('previous').disabled = true;
   $('next').disabled = true;
@@ -102,7 +109,7 @@ function renderTrail(trail, job) {
   state.trail = trail;
   state.job = job;
   state.step = 0;
-  $('mode-label').textContent = trail.mode === 'offline_demo' ? '离线示例 · 未调用模型' : '模型生成 · 源码依据已检查';
+  $('mode-label').textContent = trail.mode === 'offline_demo' ? '示例仓库' : '阅读导览';
   $('trail-title').textContent = trail.title;
   $('trail-summary').textContent = trail.summary;
   $('step-count').textContent = `${trail.steps.length} 个步骤`;
@@ -116,22 +123,14 @@ function renderTrail(trail, job) {
     button.addEventListener('click', () => selectStep(index));
     $('steps').append(button);
   });
-  const check = trail.validation;
-  $('validation').replaceChildren();
-  for (const [count, label] of [[`${check.located_steps}/${check.requested_steps}`, '符号已定位'], [check.static_connections, '静态连接可匹配'], [check.unresolved_connections, '连接待核实']]) {
-    const item = element('span');
-    item.append(element('strong', '', count), document.createTextNode(label));
-    $('validation').append(item);
-  }
-  $('gaps').replaceChildren(...trail.gaps.map((gap) => element('li', '', gap)));
   const metrics = trail.metrics;
   const tokens = metrics.prompt_tokens + metrics.completion_tokens;
-  const cost = metrics.estimated_cost == null ? '费用未配置或用量缺失' : `约 ${Number(metrics.estimated_cost).toFixed(4)} ${metrics.currency}`;
-  $('run-metrics').textContent = `${metrics.model} · ${metrics.calls} 次调用 · ${metrics.usage_complete ? tokens.toLocaleString() : '用量缺失'} tokens · ${metrics.elapsed_seconds}s · ${cost}`;
+  $('run-metrics').textContent = trail.mode === 'offline_demo' ? 'Paperplane / Python' :
+    `${metrics.model} · ${metrics.elapsed_seconds}s${metrics.usage_complete ? ` · ${tokens.toLocaleString()} tokens` : ''}`;
   $('export-button').disabled = !job;
   for (const format of ['markdown', 'codetour', 'json']) $('export-' + format).href = `/api/export/${job}?format=${format}`;
   if (trail.steps.length) selectStep(0);
-  else message('error', '本次结果没有可定位步骤，请查看待核实部分');
+  else message('error', '本次生成没有返回阅读步骤，请重试或选择其他入口');
 }
 
 function highlight(text) {
@@ -176,11 +175,12 @@ async function selectStep(index) {
   details.replaceChildren(element('h3', '', '这一步看什么'), element('p', '', step.explanation));
   const connection = step.connection;
   const parent = connection ? trail.steps.findIndex((item) => item.symbol_id === connection.source) + 1 : 0;
-  const label = !connection ? '从已识别的入口开始' : connection.status === 'static_match' ? `由第 ${parent} 步调用 · ${connection.file} L${connection.line}` : '已读步骤到此处的连接需要核实';
-  details.append(element('div', `connection-note${connection?.status === 'unresolved' ? ' unresolved' : ''}`, label));
+  if (connection?.status === 'static_match') {
+    details.append(element('div', 'connection-note', `来自步骤 ${parent} · ${connection.file} L${connection.line}`));
+  }
   $('previous').disabled = index === 0;
   $('next').disabled = index === trail.steps.length - 1;
-  $('source-status').textContent = '源码与当前快照一致 · 解释语义待人工核对';
+  $('source-status').textContent = 'Python';
   renderSource(step.file, step.source, step.start, step.end, step.start);
   const epoch = state.epoch;
   try {
@@ -191,7 +191,7 @@ async function selectStep(index) {
     const last = Math.min(lines.length, step.end + 4);
     renderSource(step.file, lines.slice(first - 1, last).join('\n'), step.start, step.end, first);
   } catch (error) {
-    if (state.sourceRequest === sourceRequest && state.epoch === epoch) $('source-status').textContent = '显示导览保存的源码片段 · 完整快照已不可用';
+    if (state.sourceRequest === sourceRequest && state.epoch === epoch) $('source-status').textContent = 'Python · 源码片段';
   }
 }
 
@@ -202,7 +202,7 @@ async function showFile(file) {
     const data = await api(`/api/source/${state.repository.repository_id}?file=${encodeURIComponent(file)}`);
     if (epoch !== state.epoch || state.sourceRequest !== sourceRequest) return;
     renderSource(file, data.source);
-    $('source-status').textContent = '模块文件快照 · 选择阅读步骤可返回对应代码';
+    $('source-status').textContent = 'Python';
     for (const item of $('modules').children) item.classList.toggle('active', item.firstChild.textContent === file);
   } catch (error) { message('error', error.message); }
 }
@@ -223,10 +223,14 @@ async function loadDemo() {
 
 $('generate').addEventListener('click', async () => {
   if (state.busy) return;
+  if (!state.repository.demo && !state.modelReady) {
+    await openProvider();
+    return;
+  }
   state.busy = true;
   refreshButton();
   message('error', '');
-  message('notice', '正在读取源码并校验导览依据，模型服务较慢时可能需要数分钟');
+  message('notice', '正在阅读源码并生成导览');
   try {
     const job = await api('/api/generate', { repository_id: state.repository.repository_id, flow_id: state.flow });
     const started = Date.now();
@@ -255,13 +259,13 @@ $('repository-form').addEventListener('submit', async (event) => {
     state.epoch++;
     clearTrail();
     renderRepository(repository);
-    $('mode-label').textContent = '仓库快照 · 选择候选流程';
+    $('mode-label').textContent = '仓库';
     $('trail-title').textContent = repository.name;
-    $('trail-summary').textContent = '从左侧选择一条候选流程，生成带源码依据的阅读路线。模块地图支持直接查看文件。';
+    $('trail-summary').textContent = '选择一个阅读起点，沿着调用关系了解这个项目。';
     $('repository-dialog').close();
     message('error', '');
   } catch (error) { message('dialog-error', error.message); }
-  finally { $('analyze-button').disabled = false; $('analyze-button').textContent = '分析仓库 →'; }
+  finally { $('analyze-button').disabled = false; $('analyze-button').textContent = '打开仓库 →'; }
 });
 
 $('open-repository').addEventListener('click', () => $('repository-dialog').showModal());
@@ -288,11 +292,145 @@ document.addEventListener('keydown', (event) => {
 
 async function initialize() {
   try {
-    const health = await api('/api/health');
-    state.modelReady = health.model_ready;
-    $('model-status').textContent = health.model_ready ? health.model : '模型 API 待配置';
+    updateProvider(await api('/api/provider'));
     await loadDemo();
   } catch (error) { message('error', '本地服务连接失败，请确认服务正在运行'); }
 }
 initialize();
+
+function updateProvider(provider) {
+  state.provider = provider;
+  state.modelReady = provider.configured;
+  $('model-status').textContent = provider.configured ? provider.model : 'API 接入';
+  $('model-dot').classList.toggle('connected', provider.configured);
+  refreshButton();
+}
+
+function providerFeedback(text, error = false) {
+  message('provider-feedback', text);
+  $('provider-feedback').classList.toggle('error', error);
+}
+
+function normalizeBase(value) {
+  return value.trim().replace(/\/+$/, '').replace(/\/(chat\/completions|models)$/, '');
+}
+
+function providerPayload() {
+  return {
+    name: $('provider-name').value.trim(),
+    base_url: $('provider-url').value.trim(),
+    api_key: $('provider-key').value,
+    model: $('provider-model').value.trim(),
+  };
+}
+
+function updateEndpoint() {
+  const base = normalizeBase($('provider-url').value);
+  $('endpoint-preview').textContent = base ? `${base}/chat/completions` : '/chat/completions';
+  $('provider-key').placeholder = state.provider?.has_key && base === state.provider.base_url ? '已保存，留空保留' : '输入 API Key';
+}
+
+function selectProviderPreset(id) {
+  for (const button of document.querySelectorAll('[data-provider]')) {
+    const active = button.dataset.provider === id;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  }
+}
+
+async function openProvider() {
+  providerFeedback('');
+  try {
+    const provider = await api('/api/provider');
+    updateProvider(provider);
+    $('provider-name').value = provider.name;
+    $('provider-url').value = provider.base_url;
+    $('provider-model').value = provider.model;
+    $('provider-key').value = '';
+    $('provider-key').type = 'password';
+    $('toggle-key').textContent = '显示';
+    $('provider-models').replaceChildren();
+    message('model-list-status', '');
+    const preset = Object.entries(providerPresets).find(([, value]) => value.base_url === provider.base_url);
+    selectProviderPreset(preset ? preset[0] : 'custom');
+    updateEndpoint();
+    $('provider-dialog').showModal();
+  } catch (error) { message('error', error.message); }
+}
+
+function providerBusy(busy) {
+  state.providerBusy = busy;
+  for (const control of $('provider-dialog').querySelectorAll('button, input')) control.disabled = busy;
+}
+
+for (const id of ['provider-settings', 'sidebar-settings']) $(id).addEventListener('click', openProvider);
+$('close-provider').addEventListener('click', () => $('provider-dialog').close());
+$('provider-dialog').addEventListener('cancel', (event) => {
+  if (state.providerBusy) event.preventDefault();
+});
+$('provider-url').addEventListener('input', () => {
+  updateEndpoint();
+  $('provider-models').replaceChildren();
+  message('model-list-status', '');
+});
+$('toggle-key').addEventListener('click', () => {
+  const reveal = $('provider-key').type === 'password';
+  $('provider-key').type = reveal ? 'text' : 'password';
+  $('toggle-key').textContent = reveal ? '隐藏' : '显示';
+});
+for (const button of document.querySelectorAll('[data-provider]')) {
+  button.addEventListener('click', () => {
+    const preset = providerPresets[button.dataset.provider];
+    selectProviderPreset(button.dataset.provider);
+    $('provider-name').value = preset.name;
+    $('provider-url').value = preset.base_url;
+    $('provider-model').value = '';
+    $('provider-key').value = '';
+    $('provider-models').replaceChildren();
+    message('model-list-status', '');
+    providerFeedback('');
+    updateEndpoint();
+  });
+}
+$('fetch-models').addEventListener('click', async () => {
+  if (!$('provider-url').reportValidity()) return;
+  providerBusy(true);
+  providerFeedback('正在获取模型列表');
+  try {
+    const data = await api('/api/provider/models', providerPayload());
+    $('provider-models').replaceChildren(...data.models.map((id) => {
+      const option = element('option');
+      option.value = id;
+      return option;
+    }));
+    if (!$('provider-model').value && data.models.length) $('provider-model').value = data.models[0];
+    message('model-list-status', `${data.models.length} 个可用模型，可输入模型 ID 筛选`);
+    providerFeedback('');
+  } catch (error) { providerFeedback(error.message, true); }
+  finally { providerBusy(false); }
+});
+$('test-provider').addEventListener('click', async () => {
+  if (!$('provider-form').reportValidity()) return;
+  providerBusy(true);
+  providerFeedback('正在测试模型连接与工具调用');
+  try {
+    const data = await api('/api/provider/test', providerPayload());
+    providerFeedback(data.message);
+  } catch (error) { providerFeedback(error.message, true); }
+  finally { providerBusy(false); }
+});
+$('provider-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  providerBusy(true);
+  providerFeedback('正在保存');
+  try {
+    const provider = await api('/api/provider', providerPayload());
+    updateProvider(provider);
+    $('provider-key').value = '';
+    $('provider-key').type = 'password';
+    $('provider-dialog').close();
+    message('notice', provider.storage === 'session' ? '模型配置已应用到当前会话' : '模型配置已保存');
+  } catch (error) { providerFeedback(error.message, true); }
+  finally { providerBusy(false); }
+});
 

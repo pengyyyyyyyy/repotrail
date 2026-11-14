@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -16,7 +17,8 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from .engine import deterministic_demo, generate
 from .export import codetour, markdown
 from .index import build_index
-from .llm import ModelClient, Settings
+from .llm import ModelClient, fetch_models, test_connection
+from .provider import ProviderStore
 from .repository import acquire
 
 
@@ -33,7 +35,14 @@ class GenerateRequest(BaseModel):
     flow_id: str
 
 
-def create_app(cache_dir: Path | None = None) -> FastAPI:
+class ProviderRequest(BaseModel):
+    name: str = Field(default="兼容 API", max_length=80)
+    base_url: str = Field(min_length=1, max_length=1000)
+    api_key: str = Field(default="", max_length=8192, repr=False)
+    model: str = Field(default="", max_length=300)
+
+
+def create_app(cache_dir: Path | None = None, provider_store: ProviderStore | None = None) -> FastAPI:
     pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="repotrail")
 
     @asynccontextmanager
@@ -44,10 +53,18 @@ def create_app(cache_dir: Path | None = None) -> FastAPI:
     app = FastAPI(title="RepoTrail", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "testserver"])
     cache_dir = cache_dir or Path.cwd() / ".repotrail"
+    provider_store = provider_store or ProviderStore(cache_dir)
     repositories = OrderedDict()
     jobs = OrderedDict()
     lock = threading.Lock()
     slots = threading.BoundedSemaphore(2)
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, error: RequestValidationError):
+        details = [{"loc": item["loc"], "msg": item["msg"], "type": item["type"]}
+                   for item in error.errors()]
+        return JSONResponse({"detail": details}, status_code=422)
+
     @app.middleware("http")
     async def local_requests(request: Request, call_next):
         if request.method not in {"GET", "HEAD", "OPTIONS"}:
@@ -75,10 +92,46 @@ def create_app(cache_dir: Path | None = None) -> FastAPI:
     @app.get("/api/health")
     def health():
         try:
-            settings = Settings.from_env()
+            settings = provider_store.current()
             return {"status": "ok", "model_ready": bool(settings.key), "model": settings.model}
         except ValueError:
             return {"status": "ok", "model_ready": False, "model": "配置无效"}
+
+    @app.get("/api/provider")
+    def get_provider():
+        try:
+            return provider_store.public()
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from None
+
+    def resolve_provider(body: ProviderRequest, require_model=True):
+        try:
+            return provider_store.resolve(body.base_url, body.api_key, body.model, require_model)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from None
+
+    @app.post("/api/provider")
+    def save_provider(body: ProviderRequest):
+        try:
+            return provider_store.configure(body.name, body.base_url, body.api_key, body.model)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from None
+
+    @app.post("/api/provider/models")
+    def provider_models(body: ProviderRequest):
+        settings = resolve_provider(body, require_model=False)
+        try:
+            return {"models": fetch_models(settings)}
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from None
+
+    @app.post("/api/provider/test")
+    def check_provider(body: ProviderRequest):
+        settings = resolve_provider(body)
+        try:
+            return test_connection(settings)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from None
 
     @app.get("/api/demo")
     def demo():
@@ -133,7 +186,7 @@ def create_app(cache_dir: Path | None = None) -> FastAPI:
         settings = None
         if not demo:
             try:
-                settings = Settings.from_env()
+                settings = provider_store.current()
                 ModelClient(settings)
             except ValueError as exc:
                 raise HTTPException(400, str(exc)) from None

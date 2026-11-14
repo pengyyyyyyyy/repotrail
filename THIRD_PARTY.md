@@ -2,6 +2,8 @@
 
 RepoTrail contains an original implementation. The following public work informed its design.
 
+- OpenMinis informed provider configuration, masked credential inputs, and model discovery. Reference snapshot 1a71df0f381cefde80bf912b723de6f9831bc177. [Provider configuration](https://github.com/OpenMinis/OpenMinis/blob/1a71df0f381cefde80bf912b723de6f9831bc177/src/ios/Views/Providers/AddProviderView.swift) · [Model discovery](https://github.com/OpenMinis/OpenMinis/blob/1a71df0f381cefde80bf912b723de6f9831bc177/src/android/app/src/main/java/com/openminis/app/provider/openai/OpenAIModelsApi.kt)
+
 - Microsoft CodeTour informed the tour export schema. MIT. [Repository](https://github.com/microsoft/codetour)
 - PocketFlow Codebase Knowledge informed staged repository analysis. MIT. [Repository](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge)
 - Aider's repository-map documentation informed bounded context selection. Apache-2.0 for its code. [Repository](https://github.com/Aider-AI/aider)

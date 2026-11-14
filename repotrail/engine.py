@@ -234,7 +234,7 @@ def deterministic_demo(index: RepositoryIndex, flow: Flow) -> dict:
         path.append(choices[0])
     draft = DraftTrail.model_validate({
         "title": flow.title,
-        "summary": "此示例按 AST 静态调用候选生成一条阅读路线。选择步骤可对照真实源码。中文说明来自函数文档，完整语义需要人工核对。",
+        "summary": "从命令行读取名字，经过消息构建与输入清理，最终输出 JSON。沿着三个函数，了解输入如何在文件之间流转。",
         "steps": [{"symbol_id": item, "title": index.symbols[item].name,
                    "explanation": index.symbols[item].doc or
                    f"阅读 {index.symbols[item].name} 的实现，核对其输入、返回值和调用关系。"}
