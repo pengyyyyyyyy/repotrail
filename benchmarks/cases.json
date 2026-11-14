@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "review_status": "assistant_source_inspection_complete_independent_human_review_pending",
+  "repositories": [
+    {
+      "name": "requests",
+      "url": "https://github.com/psf/requests",
+      "revision": "3c7baaa05ab4aa49cc819ce3a819d260de19c157",
+      "entry": "src/requests/api.py::get",
+      "title": "一次 GET 请求如何进入 Session",
+      "questions": [
+        {"id": "requests-1", "symbol": "src/requests/api.py::get", "question": "get 函数将请求交给谁？", "answer": "调用同模块的 request，并传入 get 方法与 params。", "source_fragment": "return request('get', url"},
+        {"id": "requests-2", "symbol": "src/requests/api.py::request", "question": "顶层 request 如何管理 Session？", "answer": "通过 with sessions.Session() 创建上下文，并调用 session.request。", "source_fragment": "with sessions.Session() as session:"},
+        {"id": "requests-3", "symbol": "src/requests/sessions.py::Session.request", "question": "Session.request 发送请求前做了什么？", "answer": "构建 Request，调用 prepare_request，合并环境配置后调用 send。", "source_fragment": "prep = self.prepare_request(req)"},
+        {"id": "requests-4", "symbol": "src/requests/sessions.py::Session.prepare_request", "question": "请求与 Session 的配置在哪里合并？", "answer": "prepare_request 合并 cookies、auth、headers、params 与 hooks，并调用 PreparedRequest.prepare。", "source_fragment": "p = PreparedRequest()"},
+        {"id": "requests-5", "symbol": "src/requests/sessions.py::Session.send", "question": "实际发送与响应钩子在哪一层处理？", "answer": "Session.send 选择 adapter 并调用 adapter.send，然后 dispatch_hook，并处理 cookie 与重定向。", "source_fragment": "r = adapter.send(request, **kwargs)"}
+      ]
+    },
+    {
+      "name": "click",
+      "url": "https://github.com/pallets/click",
+      "revision": "e38188e9e205005d5af5f9e59df51904c984586a",
+      "entry": "src/click/core.py::Command.__call__",
+      "title": "一个 Click 命令如何解析参数并调用回调",
+      "questions": [
+        {"id": "click-1", "symbol": "src/click/core.py::Command.__call__", "question": "调用 Command 对象进入哪个方法？", "answer": "__call__ 将参数转发给 self.main。", "source_fragment": "return self.main(*args, **kwargs)"},
+        {"id": "click-2", "symbol": "src/click/core.py::Command.main", "question": "命令上下文与命令执行在哪里串联？", "answer": "main 用 make_context 创建上下文，并在上下文内调用 invoke，同时处理 standalone_mode 与退出异常。", "source_fragment": "with self.make_context(prog_name, args, **extra) as ctx:"},
+        {"id": "click-3", "symbol": "src/click/core.py::Command.make_context", "question": "解析参数在哪里启动？", "answer": "make_context 创建 context_class 实例，在 ctx.scope 内调用 self.parse_args。", "source_fragment": "self.parse_args(ctx, args)"},
+        {"id": "click-4", "symbol": "src/click/core.py::Command.parse_args", "question": "参数解析如何进入 Context？", "answer": "parse_args 通过 parser 解析，再逐参数调用 handle_parse_result，处理 UNSET 并保存剩余 ctx.args。", "source_fragment": "opts, args, param_order = parser.parse_args(args=args)"},
+        {"id": "click-5", "symbol": "src/click/core.py::Command.invoke", "question": "最终用户回调从哪里调用？", "answer": "当 callback 存在时，Command.invoke 调用 ctx.invoke(self.callback, **ctx.params)。", "source_fragment": "return ctx.invoke(self.callback, **ctx.params)"}
+      ]
+    },
+    {
+      "name": "flask",
+      "url": "https://github.com/pallets/flask",
+      "revision": "49943b5a94413a530761350f04e896f76e8d620e",
+      "entry": "src/flask/app.py::Flask.__call__",
+      "title": "一次 WSGI 请求如何进入视图并生成响应",
+      "questions": [
+        {"id": "flask-1", "symbol": "src/flask/app.py::Flask.__call__", "question": "WSGI 调用进入哪个方法？", "answer": "Flask.__call__ 将 environ 与 start_response 转交给 wsgi_app。", "source_fragment": "return self.wsgi_app(environ, start_response)"},
+        {"id": "flask-2", "symbol": "src/flask/app.py::Flask.wsgi_app", "question": "请求上下文何时建立与清理？", "answer": "wsgi_app 创建 request_context 并 push，执行请求分发，最终在 finally 中调用 ctx.pop(error)。", "source_fragment": "ctx.pop(error)"},
+        {"id": "flask-3", "symbol": "src/flask/app.py::Flask.full_dispatch_request", "question": "预处理、分发和响应收尾如何串联？", "answer": "full_dispatch_request 调用 preprocess_request，返回 None 时调用 dispatch_request，随后调用 finalize_request。", "source_fragment": "rv = self.dispatch_request(ctx)"},
+        {"id": "flask-4", "symbol": "src/flask/app.py::Flask.dispatch_request", "question": "URL endpoint 如何映射到视图函数？", "answer": "dispatch_request 处理路由异常与自动 OPTIONS，从 view_functions[rule.endpoint] 取视图，经过 ensure_sync 后传入 view_args。", "source_fragment": "return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)"},
+        {"id": "flask-5", "symbol": "src/flask/app.py::Flask.finalize_request", "question": "视图结果在哪里转为最终 Response？", "answer": "finalize_request 调用 make_response 与 process_response，并发送 request_finished 信号。", "source_fragment": "response = self.process_response(ctx, response)"}
+      ]
+    }
+  ]
+}
+
