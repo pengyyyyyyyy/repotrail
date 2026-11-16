@@ -1,14 +1,30 @@
 # RepoTrail
 
-沿着一条调用，读懂一个 Python 仓库。
+连接源码与团队知识，建立可持续学习的研发入职培训工作区。
 
 [English](README.md) · [架构与取舍](docs/architecture.md) · [调研依据](docs/research.md) · [评测方法](benchmarks/README.md)
 
 输入公开 GitHub 仓库或本地目录，查看阅读起点与模块地图，选定一条流程，在源码旁逐步阅读解释。支持导出 Markdown、JSON 和 CodeTour。
 
+团队版提供内置账号与项目授权、Markdown/PDF 知识库、混合检索、课程审核发布、个人持续追问、历史恢复、阅读进度和学习总结验收。
+
+## 团队工作区
+
+```powershell
+git clone https://github.com/pengyyyyyyyy/repotrail.git
+Set-Location repotrail
+python -m venv .venv
+& .\.venv\Scripts\python.exe -m pip install -e ".[dev,embeddings]"
+& .\.venv\Scripts\python.exe -m repotrail.cli admin create admin --name 管理员
+& .\.venv\Scripts\python.exe -m repotrail.cli seed --username admin --source .
+& .\.venv\Scripts\python.exe -m repotrail.cli serve --team --port 8766
+```
+
+打开[团队工作区](http://127.0.0.1:8766)。本地快速启动使用 SQLite 与内嵌 worker。Docker Compose 配置使用 PostgreSQL、pgvector 和独立持久化任务 worker。[部署、配置与备份恢复](docs/self-hosting.md)
+
 ![源码阅读工作区](docs/assets/workspace.png)
 
-## 快速开始
+## 单人源码阅读工作区
 
 安装 Python 3.11 或更新版本与 Git，然后在 PowerShell 中执行。
 

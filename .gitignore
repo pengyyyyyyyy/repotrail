@@ -9,4 +9,6 @@ __pycache__/
 benchmarks/checkouts/
 benchmarks/results/
 dist/
+build/
+.repotrail-backup*
 

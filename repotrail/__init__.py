@@ -1,4 +1,4 @@
-"""RepoTrail, a source-grounded repository reading tool."""
+"""Source-grounded team onboarding and repository reading."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 

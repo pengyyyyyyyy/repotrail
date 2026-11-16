@@ -1,0 +1,59 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      REPOTRAIL_TEST_DATABASE_URL: postgresql+psycopg://postgres@127.0.0.1:5432/postgres
+      REPOTRAIL_EMBEDDINGS: "off"
+      COMPOSE_PROJECT_NAME: repotrail-ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest -q
+      - run: node --check repotrail/static/app.js
+      - run: node --check repotrail/static/team.js
+      - name: Build installable package
+        run: python -m pip wheel --no-deps --wheel-dir .repotrail/distribution .
+      - name: Prepare isolated Compose credentials
+        run: |
+          repotrail_ci_password="$(openssl rand -hex 24)"
+          echo "::add-mask::$repotrail_ci_password"
+          printf 'REPOTRAIL_DB_PASSWORD=%s\n' "$repotrail_ci_password" >> "$GITHUB_ENV"
+      - name: Validate and build Compose image
+        run: |
+          docker compose config --quiet
+          docker compose build web
+      - name: Start shared deployment
+        run: docker compose up -d --no-build --wait --wait-timeout 120
+      - name: Verify standalone worker and HTTP workflow
+        run: docker compose exec -T -e REPOTRAIL_SMOKE_TEST=1 web python -m benchmarks.container_smoke
+      - name: Show service logs on failure
+        if: failure() && env.REPOTRAIL_DB_PASSWORD != ''
+        run: docker compose logs --no-color --tail 100 web worker
+      - name: Clean isolated deployment
+        if: always() && env.REPOTRAIL_DB_PASSWORD != ''
+        run: docker compose down --volumes --remove-orphans

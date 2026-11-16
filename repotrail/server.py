@@ -40,6 +40,9 @@ class ProviderRequest(BaseModel):
     base_url: str = Field(min_length=1, max_length=1000)
     api_key: str = Field(default="", max_length=8192, repr=False)
     model: str = Field(default="", max_length=300)
+    input_price: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    output_price: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    currency: str = Field(default="CNY", min_length=1, max_length=12)
 
 
 def create_app(cache_dir: Path | None = None, provider_store: ProviderStore | None = None) -> FastAPI:
@@ -113,7 +116,8 @@ def create_app(cache_dir: Path | None = None, provider_store: ProviderStore | No
     @app.post("/api/provider")
     def save_provider(body: ProviderRequest):
         try:
-            return provider_store.configure(body.name, body.base_url, body.api_key, body.model)
+            pricing = body.model_dump(include={"input_price", "output_price", "currency"}, exclude_unset=True)
+            return provider_store.configure(body.name, body.base_url, body.api_key, body.model, pricing)
         except ValueError as exc:
             raise HTTPException(400, str(exc)) from None
 

@@ -34,6 +34,9 @@ class Settings:
             raise ValueError("请填写 HTTPS API 根地址，本地服务可使用 HTTP")
         if any(char in self.key for char in "\r\n"):
             raise ValueError("API Key 中包含换行，请重新填写")
+        if any(value is not None and (not math.isfinite(value) or value < 0)
+               for value in (self.input_price, self.output_price)):
+            raise ValueError("Token 单价需要为非负有限数值")
         return replace(self, base_url=base, key=self.key.strip(), model=self.model.strip())
 
     @classmethod
@@ -59,7 +62,7 @@ class Settings:
 
 
 class ModelClient:
-    """A bounded, non-streaming Chat Completions client with actual usage accounting."""
+    """A bounded Chat Completions client with actual usage accounting."""
 
     def __init__(self, settings: Settings):
         if not settings.key:
@@ -69,10 +72,11 @@ class ModelClient:
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.usage_complete = True
+        self.last_finish_reason = None
         self.started = time.monotonic()
 
     def complete(self, messages: list[dict], tools: list[dict] | None = None,
-                 max_tokens: int = 2800) -> dict:
+                 max_tokens: int = 2800, json_mode: bool = False) -> dict:
         remaining = 180 - (time.monotonic() - self.started)
         if self.calls >= 6 or remaining < 1:
             raise ValueError("已达到本次生成的模型调用或时间上限")
@@ -80,6 +84,10 @@ class ModelClient:
             raise ValueError("本次模型上下文已达到大小上限")
         body = {"model": self.settings.model, "messages": messages,
                 "temperature": 0, "max_tokens": max_tokens}
+        if urlsplit(self.settings.base_url).hostname == "api.deepseek.com":
+            body["reasoning_effort"] = "low"
+        if json_mode:
+            body["response_format"] = {"type": "json_object"}
         if tools:
             body["tools"] = tools
         self.calls += 1
@@ -91,6 +99,9 @@ class ModelClient:
             )
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
+            if (json_mode and exc.response.status_code in {400, 422}
+                    and any(name in exc.response.text for name in ("response_format", "json_object"))):
+                return self.complete(messages, tools=tools, max_tokens=max_tokens, json_mode=False)
             raise ValueError(f"模型服务返回 HTTP {exc.response.status_code}，请检查接口与模型配置") from None
         except httpx.HTTPError:
             raise ValueError("模型请求失败或超时，请检查服务地址与网络") from None
@@ -102,6 +113,7 @@ class ModelClient:
             self.prompt_tokens += int(usage.get("prompt_tokens", 0))
             self.completion_tokens += int(usage.get("completion_tokens", 0))
             message = payload["choices"][0]["message"]
+            self.last_finish_reason = payload["choices"][0].get("finish_reason")
             if not isinstance(message, dict):
                 raise ValueError("Invalid message")
             return message
@@ -119,8 +131,56 @@ class ModelClient:
             "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
             "usage_complete": self.usage_complete,
             "estimated_cost": cost, "currency": settings.currency,
+            "input_price": settings.input_price, "output_price": settings.output_price,
             "elapsed_seconds": round(time.monotonic() - self.started, 2),
+            "finish_reason": self.last_finish_reason,
         }
+
+    def stream(self, messages: list[dict], max_tokens: int = 6000):
+        """Yield text deltas while accounting for the provider's final usage event."""
+        if self.calls >= 6 or len(json.dumps(messages, ensure_ascii=False)) > 140_000:
+            raise ValueError("本次模型调用已达到上下文或请求上限")
+        self.calls += 1
+        received_usage = False
+        prior_prompt_tokens, prior_completion_tokens = self.prompt_tokens, self.completion_tokens
+        self.last_finish_reason = None
+        body = {"model": self.settings.model, "messages": messages, "temperature": 0,
+                "max_tokens": max_tokens, "stream": True, "stream_options": {"include_usage": True}}
+        if urlsplit(self.settings.base_url).hostname == "api.deepseek.com":
+            body["reasoning_effort"] = "low"
+        try:
+            with httpx.stream("POST", self.settings.base_url + "/chat/completions", json=body,
+                              headers={"Authorization": f"Bearer {self.settings.key}"},
+                              timeout=httpx.Timeout(60, connect=15), follow_redirects=False) as response:
+                response.raise_for_status()
+                for line in response.iter_lines():
+                    if time.monotonic() - self.started > 180:
+                        raise ValueError("本次回答达到时间上限，请缩小问题范围后重试")
+                    if not line.startswith("data:"):
+                        continue
+                    value = line[5:].strip()
+                    if value == "[DONE]":
+                        break
+                    payload = json.loads(value)
+                    usage = payload.get("usage")
+                    if usage and "prompt_tokens" in usage and "completion_tokens" in usage:
+                        self.prompt_tokens = prior_prompt_tokens + int(usage["prompt_tokens"])
+                        self.completion_tokens = prior_completion_tokens + int(usage["completion_tokens"])
+                        received_usage = True
+                    choices = payload.get("choices") or []
+                    if choices and choices[0].get("finish_reason"):
+                        self.last_finish_reason = choices[0]["finish_reason"]
+                    content = choices[0].get("delta", {}).get("content") if choices else None
+                    if isinstance(content, str) and content:
+                        yield content
+        except httpx.HTTPStatusError as exc:
+            raise ValueError(f"模型流式接口返回 HTTP {exc.response.status_code}") from None
+        except httpx.HTTPError:
+            raise ValueError("模型流式连接失败或超时，请重试") from None
+        except (TypeError, KeyError, IndexError, json.JSONDecodeError):
+            raise ValueError("模型流式响应格式无法识别") from None
+        finally:
+            self.usage_complete = self.usage_complete and received_usage
 
 
 def fetch_models(settings: Settings) -> list[str]:

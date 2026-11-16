@@ -49,18 +49,18 @@ def _git(root: Path, *args: str) -> str | None:
         return None
 
 
-def _files(root: Path) -> list[Path]:
+def _files(root: Path, suffix: str = ".py") -> list[Path]:
     top = _git(root, "rev-parse", "--show-toplevel")
     if top and Path(top).resolve() == root:
         tracked = _git(root, "ls-files", "-z", "--cached", "--others",
-                       "--exclude-standard", "--", "*.py")
+                       "--exclude-standard", "--", "*" + suffix)
         if tracked is not None:
             return sorted({root / name for name in tracked.split("\0") if name})
     result = []
     for folder, dirs, files in os.walk(root, followlinks=False):
         dirs[:] = sorted(name for name in dirs
                          if name not in SKIP and not (Path(folder) / name).is_symlink())
-        result.extend(Path(folder) / name for name in sorted(files) if name.endswith(".py"))
+        result.extend(Path(folder) / name for name in sorted(files) if name.endswith(suffix))
     return sorted(result)
 
 
@@ -281,7 +281,7 @@ def build_index(directory: str | Path, limits: Limits | None = None) -> Reposito
     flows = sorted(unique.values(), key=lambda flow: (
         0 if "project.scripts" in flow.reason else 1,
         entry_rank(symbols[flow.entry]),
-    ))[:3]
+    ))
     readme = ""
     for name in ["README.md", "README.rst", "README.txt"]:
         path = root / name

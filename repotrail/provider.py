@@ -49,19 +49,29 @@ class ProviderStore:
                 return environment
             try:
                 settings = replace(environment, key="", base_url=data["base_url"],
-                                   model=data["model"]).validated()
+                                   model=data["model"], input_price=data.get("input_price", environment.input_price),
+                                   output_price=data.get("output_price", environment.output_price),
+                                   currency=data.get("currency", environment.currency)).validated()
             except (ValueError, KeyError, TypeError, AttributeError):
                 return environment
             credential = data.get("credential_id", "")
             if isinstance(credential, str) and credential.startswith(self.credential_prefix(settings.base_url)):
                 try:
-                    settings = replace(settings, key=self.vault.get_password("repotrail", credential) or "")
+                    vault = self.vault
+                    if data.get("credential_storage") == "encrypted_database" and vault is keyring:
+                        from .team.database import Database
+                        from .team.security import Vault
+                        database = Database(self.path.parent)
+                        database.migrate()
+                        vault = Vault(database, self.path.parent)
+                    settings = replace(settings, key=vault.get_password("repotrail", credential) or "")
                 except Exception:
                     pass
             if not settings.key and settings.base_url == environment.base_url:
                 settings = replace(settings, key=environment.key)
             self.name = str(data.get("name", "兼容 API"))[:80]
-            self.storage = "keyring" if settings.key and credential else "session"
+            self.storage = (data.get("credential_storage", getattr(self.vault, "storage_name", "keyring"))
+                            if settings.key and credential else "session")
             self.active = settings
             return settings
 
@@ -70,6 +80,8 @@ class ProviderStore:
             settings = self.current()
             return {"name": self.name, "base_url": settings.base_url,
                     "model": settings.model, "has_key": bool(settings.key),
+                    "input_price": settings.input_price, "output_price": settings.output_price,
+                    "currency": settings.currency,
                     "configured": bool(settings.key and settings.model), "storage": self.storage}
 
     def resolve(self, base_url: str, key: str, model: str, require_model=True) -> Settings:
@@ -87,17 +99,21 @@ class ProviderStore:
     def save(self, name: str, settings: Settings) -> dict:
         with self.lock:
             credential = self.credential_prefix(settings.base_url) + uuid.uuid4().hex
-            storage = "keyring"
+            storage = getattr(self.vault, "storage_name", "keyring")
             try:
                 self.vault.set_password("repotrail", credential, settings.key)
             except Exception:
+                if getattr(self.vault, "require_persistence", False):
+                    raise ValueError("凭据保存失败，请检查数据库与主密钥配置") from None
                 credential = ""
                 storage = "session"
             old = self.metadata()
             try:
                 write_json(self.path, {"name": name.strip() or "兼容 API",
                                       "base_url": settings.base_url, "model": settings.model,
-                                      "credential_id": credential})
+                                      "credential_id": credential, "credential_storage": storage,
+                                      "input_price": settings.input_price, "output_price": settings.output_price,
+                                      "currency": settings.currency})
             except OSError:
                 if credential:
                     self._remove_credential(credential)
@@ -112,9 +128,11 @@ class ProviderStore:
                 self._remove_credential(old_credential)
             return self.public()
 
-    def configure(self, name: str, base_url: str, key: str, model: str) -> dict:
+    def configure(self, name: str, base_url: str, key: str, model: str, pricing: dict | None = None) -> dict:
         with self.lock:
             settings = self.resolve(base_url, key, model)
+            if pricing:
+                settings = replace(settings, **pricing).validated()
             return self.save(name, settings)
 
     def _remove_credential(self, credential: str) -> None:
