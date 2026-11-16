@@ -1,0 +1,8 @@
+[
+  {"id":"business-goal","question":"示例团队希望减少新研发寻找项目入口和反复询问基础背景的时间，业务目标是什么？","scope":"documents","file_suffix":"company.md"},
+  {"id":"summary-convention","question":"学习总结需要包含哪些内容，负责人给出需要补充的内容后成员如何重新提交？","scope":"documents","file_suffix":"development.md"},
+  {"id":"account-creation","question":"create_user username password_hash 创建成员并校验密码长度","scope":"code","file_suffix":"team/security.py"},
+  {"id":"summary-review","question":"review approved feedback changes_requested 学习总结审核需要补充的状态","scope":"code","file_suffix":"team/server.py"},
+  {"id":"private-history","question":"conversation_access user_id account.id 会话仅本人访问","scope":"code","file_suffix":"team/server.py"},
+  {"id":"durable-work","question":"Worker claim lease_until attempts running queued 任务恢复","scope":"code","file_suffix":"team/worker.py"}
+]

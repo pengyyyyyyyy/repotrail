@@ -14,3 +14,5 @@ RepoTrail contains an original implementation. The following public work informe
 
 The benchmark checkouts are downloaded separately and ignored by Git. Their original licenses apply. Source excerpts in local benchmark outputs retain their original copyright and license terms.
 
+Team retrieval uses FastEmbed and the multilingual MiniLM model through its supported ONNX distribution. FastEmbed is Apache-2.0, pgvector is PostgreSQL-licensed, and the upstream multilingual MiniLM model is Apache-2.0. Model artifacts are downloaded to the local runtime cache. [FastEmbed](https://github.com/qdrant/fastembed) · [pgvector](https://github.com/pgvector/pgvector) · [Model](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2)
+

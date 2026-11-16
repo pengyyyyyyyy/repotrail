@@ -59,3 +59,49 @@ def test_call_limit():
     with pytest.raises(ValueError, match="上限"):
         client.complete([])
 
+
+def test_structured_mode_falls_back_for_unsupported_provider(monkeypatch):
+    requests = []
+    def post(url, **kwargs):
+        requests.append(kwargs["json"])
+        if len(requests) == 1:
+            return httpx.Response(400, request=httpx.Request("POST", url), text="unsupported response_format")
+        return httpx.Response(200, request=httpx.Request("POST", url), json={
+            "choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1}})
+    monkeypatch.setattr(httpx, "post", post)
+    client = ModelClient(Settings("test-key", base_url="https://provider.example/v1"))
+    assert client.complete([], json_mode=True)["content"] == "{}"
+    assert requests[0]["response_format"] == {"type": "json_object"}
+    assert "response_format" not in requests[1]
+    assert client.metrics()["finish_reason"] == "stop"
+    assert client.calls == 2
+
+
+def test_deepseek_requests_use_documented_low_thinking_effort(monkeypatch):
+    def post(url, **kwargs):
+        assert kwargs["json"]["reasoning_effort"] == "low"
+        return httpx.Response(200, request=httpx.Request("POST", url), json={
+            "choices": [{"message": {"content": "{}"}}]})
+    monkeypatch.setattr(httpx, "post", post)
+    ModelClient(Settings("test-key")).complete([])
+
+
+def test_stream_accounts_for_final_usage_and_hides_reasoning(monkeypatch):
+    from contextlib import contextmanager
+    @contextmanager
+    def stream(method, url, **kwargs):
+        yield httpx.Response(200, request=httpx.Request(method, url), content=(
+            'data: {"choices":[{"delta":{"reasoning_content":"internal reasoning"}}]}\n\n'
+            'data: {"choices":[{"delta":{"content":"answer"}}]}\n\n'
+            'data: {"choices":[],"usage":{"prompt_tokens":8,"completion_tokens":4}}\n\n'
+            'data: [DONE]\n\n').encode())
+    monkeypatch.setattr(httpx, "stream", stream)
+    client = ModelClient(Settings("test-key"))
+    client.prompt_tokens = 2
+    client.completion_tokens = 3
+    assert list(client.stream([])) == ["answer"]
+    assert client.metrics()["usage_complete"] is True
+    assert client.metrics()["completion_tokens"] == 7
+    assert client.metrics()["prompt_tokens"] == 10
+

@@ -1,14 +1,30 @@
 # RepoTrail
 
-A local workspace for reading unfamiliar Python repositories.
+A self-hosted onboarding workspace for engineering teams, grounded in Python source and project knowledge.
 
 [简体中文](README.zh-CN.md) · [Architecture](docs/architecture.md) · [Research](docs/research.md) · [Evaluation](benchmarks/README.md)
 
 Open a GitHub repository or local checkout, choose an entry point, and follow a reading trail alongside the source. RepoTrail includes a Python symbol index, model-assisted explanations, and Markdown, JSON and CodeTour exports.
 
+Team mode adds project-scoped access, Markdown/PDF knowledge ingestion, hybrid retrieval, reviewed onboarding courses, private follow-up conversations, persistent learning progress and administrator acceptance of learning summaries.
+
+## Team workspace
+
+```sh
+git clone https://github.com/pengyyyyyyyy/repotrail.git
+cd repotrail
+python -m venv .venv
+.venv/bin/python -m pip install -e '.[dev,embeddings]'
+.venv/bin/python -m repotrail.cli admin create admin
+.venv/bin/python -m repotrail.cli seed --username admin --source .
+.venv/bin/python -m repotrail.cli serve --team --port 8766
+```
+
+On Windows use `.venv\Scripts\python.exe`. Open [the team workspace](http://127.0.0.1:8766). The local quick start uses SQLite and an embedded worker. The supplied Docker Compose deployment uses PostgreSQL, pgvector and a separate durable worker. [Deployment and operations](docs/self-hosting.md)
+
 ![RepoTrail reading workspace](docs/assets/workspace.png)
 
-## Quick start
+## Single-user reading workspace
 
 Python 3.11 or newer and Git are required. From this checkout, create an environment.
 

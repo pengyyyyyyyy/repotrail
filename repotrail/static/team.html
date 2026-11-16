@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RepoTrail · 团队培训</title>
+  <link rel="stylesheet" href="/static/team.css">
+  <script src="/static/team.js" defer></script>
+</head>
+<body>
+  <section id="login-screen" class="login-screen" hidden>
+    <div class="login-intro"><a class="brand" href="/">RepoTrail<span class="brand-line"></span></a>
+      <h1>从项目全貌，<br>读到每一行实现。</h1><p>连接源码与团队知识，开始你的项目学习。</p></div>
+    <form id="login-form" class="login-form">
+      <h2>登录团队工作区</h2>
+      <label>账号<input name="username" autocomplete="username" required maxlength="80"></label>
+      <label>密码<input name="password" type="password" autocomplete="current-password" required maxlength="256"></label>
+      <p id="login-error" class="error-text" role="alert"></p>
+      <button class="primary" type="submit">登录</button>
+    </form>
+  </section>
+  <div id="workspace" hidden>
+    <header class="topbar"><a href="/" class="brand">RepoTrail<span class="brand-line"></span></a>
+      <span id="breadcrumb">团队培训</span><div class="account"><span id="account-name"></span>
+        <button id="change-password" class="quiet">修改密码</button><button id="logout" class="quiet">退出</button></div></header>
+    <div id="feedback" class="feedback" role="status" hidden></div>
+    <div class="shell">
+      <aside class="sidebar">
+        <label class="project-label" for="project-picker">项目</label>
+        <select id="project-picker" aria-label="切换项目"></select>
+        <button id="create-project" class="new-project admin-only" hidden>＋ 新建项目</button>
+        <nav aria-label="项目导航">
+          <button data-view="courses" class="nav-item active">培训课程</button>
+          <button data-view="entries" class="nav-item">源码阅读</button>
+          <button data-view="knowledge" class="nav-item">项目知识库</button>
+          <button data-view="shared" class="nav-item">共享问答</button>
+          <button data-view="jobs" class="nav-item">任务记录</button>
+          <button data-view="acceptance" class="nav-item admin-only" hidden>学习验收</button>
+          <button data-view="members" class="nav-item admin-only" hidden>成员与权限</button>
+          <button data-view="settings" class="nav-item admin-only" hidden>模型与用量</button>
+        </nav>
+        <div class="history-heading"><span>我的学习会话</span><button id="new-chat" class="quiet" title="新建学习会话">＋ 新建</button></div>
+        <div id="conversation-list" class="conversation-list"></div>
+        <div class="sidebar-footer"><span id="project-version" class="mono"></span></div>
+      </aside>
+      <main id="main" tabindex="-1"></main>
+      <aside id="chat-panel" class="chat-panel" aria-label="学习追问" hidden>
+        <header class="chat-header"><div><h2>学习追问</h2><span id="chat-context" class="meta"></span></div>
+          <button id="delete-chat" class="quiet">删除会话</button></header>
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <form id="chat-form" class="chat-form"><label for="question">继续了解这个项目</label>
+          <textarea id="question" rows="3" placeholder="这个模块如何处理请求？" required maxlength="6000"></textarea>
+          <div class="chat-actions"><span class="meta">回答关联当前课程版本</span><button id="stop-answer" type="button" hidden>停止</button>
+            <button id="send-question" type="submit" class="primary">发送</button></div></form>
+      </aside>
+    </div>
+  </div>
+  <dialog id="dialog" aria-labelledby="dialog-title"><header><h2 id="dialog-title"></h2><button id="close-dialog" class="quiet" aria-label="关闭">关闭</button></header><div id="dialog-body"></div></dialog>
+  <dialog id="source-dialog" class="source-dialog" aria-labelledby="source-title"><header><h2 id="source-title"></h2><button id="close-source" class="quiet">关闭</button></header><pre id="source-body"></pre></dialog>
+</body>
+</html>

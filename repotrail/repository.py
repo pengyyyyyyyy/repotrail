@@ -36,7 +36,7 @@ def acquire(source: str, cache_dir: Path) -> Path:
     environment.update(GIT_TERMINAL_PROMPT="0", GIT_CONFIG_NOSYSTEM="1")
     try:
         subprocess.run(
-            ["git", "-c", "core.hooksPath=", "-c", "core.fsmonitor=false",
+            ["git", "-c", f"core.hooksPath={os.devnull}", "-c", "core.fsmonitor=false",
              "-c", "credential.helper=", "-c", "protocol.file.allow=never",
              "clone", "--depth", "1", "--single-branch", "--", url, str(temporary)],
             check=True, capture_output=True, timeout=120, env=environment,
@@ -56,5 +56,43 @@ def acquire(source: str, cache_dir: Path) -> Path:
                 and temporary.name.startswith("clone-")):
             import shutil
             shutil.rmtree(temporary, ignore_errors=True)
+    return destination
+
+
+def acquire_team(source: str, cache_dir: Path, token: str = "") -> Path:
+    """Make a fresh HTTPS checkout, or read an administrator-selected local directory."""
+    import shlex
+    import sys
+    from urllib.parse import urlsplit
+
+    if not source.startswith(("https://", "http://", "ssh://", "git@")):
+        return acquire(source, cache_dir)
+    parts = urlsplit(source)
+    if (len(source) > 1000 or parts.scheme != "https" or not parts.hostname
+            or parts.username or parts.password or parts.query or parts.fragment
+            or not parts.path.strip("/") or any(char.isspace() for char in source)):
+        raise ValueError("请输入 HTTPS Git 仓库地址，访问令牌请单独配置")
+    if any(character in token for character in "\r\n"):
+        raise ValueError("访问令牌包含换行，请重新填写")
+    parent = cache_dir / "team-repositories"
+    parent.mkdir(parents=True, exist_ok=True)
+    destination = Path(tempfile.mkdtemp(prefix="snapshot-", dir=parent))
+    environment = os.environ.copy()
+    environment.update(GIT_TERMINAL_PROMPT="0", GIT_CONFIG_NOSYSTEM="1",
+                       GIT_CONFIG_GLOBAL=os.devnull, REPOTRAIL_GIT_TOKEN=token)
+    executable = shlex.quote(sys.executable.replace("\\", "/"))
+    helper = f"!{executable} -m repotrail.git_credentials"
+    try:
+        subprocess.run([
+            "git", "-c", f"core.hooksPath={os.devnull}", "-c", "core.fsmonitor=false",
+            "-c", "credential.helper=", "-c", f"credential.helper={helper}",
+            "-c", "protocol.file.allow=never", "-c", "http.followRedirects=false",
+            "clone", "--depth", "1", "--single-branch", "--", source, str(destination),
+        ], check=True, capture_output=True, timeout=120, env=environment)
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        import shutil
+        if destination.resolve().is_relative_to(parent.resolve()) and destination.name.startswith("snapshot-"):
+            shutil.rmtree(destination, ignore_errors=True)
+        raise ValueError("仓库获取失败，请检查地址、访问令牌、Git 安装及网络") from None
     return destination
 

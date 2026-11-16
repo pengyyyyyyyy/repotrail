@@ -1,0 +1,64 @@
+name: repotrail
+
+x-runtime: &runtime
+  build: .
+  image: repotrail:local
+  init: true
+  restart: unless-stopped
+  environment: &environment
+    REPOTRAIL_DATABASE_URL: postgresql+psycopg://repotrail:${REPOTRAIL_DB_PASSWORD:?Set REPOTRAIL_DB_PASSWORD in .env}@db:5432/repotrail
+    REPOTRAIL_DATA_DIR: /var/lib/repotrail
+    REPOTRAIL_EMBEDDED_WORKER: "0"
+    REPOTRAIL_ALLOWED_HOSTS: ${REPOTRAIL_ALLOWED_HOSTS:-localhost,127.0.0.1}
+    REPOTRAIL_PUBLIC_URL: ${REPOTRAIL_PUBLIC_URL:-http://127.0.0.1:8766}
+    REPOTRAIL_COOKIE_SECURE: ${REPOTRAIL_COOKIE_SECURE:-0}
+    REPOTRAIL_EMBEDDINGS: ${REPOTRAIL_EMBEDDINGS:-}
+    REPOTRAIL_EMBEDDING_MODEL: ${REPOTRAIL_EMBEDDING_MODEL:-}
+    REPOTRAIL_EMBEDDING_URL: ${REPOTRAIL_EMBEDDING_URL:-}
+    REPOTRAIL_EMBEDDING_KEY: ${REPOTRAIL_EMBEDDING_KEY:-}
+    REPOTRAIL_API_KEY: ${REPOTRAIL_API_KEY:-}
+    REPOTRAIL_BASE_URL: ${REPOTRAIL_BASE_URL:-https://api.deepseek.com/v1}
+    REPOTRAIL_MODEL: ${REPOTRAIL_MODEL:-deepseek-flash}
+    REPOTRAIL_INPUT_PRICE: ${REPOTRAIL_INPUT_PRICE:-}
+    REPOTRAIL_OUTPUT_PRICE: ${REPOTRAIL_OUTPUT_PRICE:-}
+    REPOTRAIL_CURRENCY: ${REPOTRAIL_CURRENCY:-CNY}
+    REPOTRAIL_SECRET_KEY: ${REPOTRAIL_SECRET_KEY:-}
+  volumes:
+    - team-data:/var/lib/repotrail
+    - ${REPOTRAIL_REPOSITORY_ROOT:-.}:/repositories:ro
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: repotrail
+      POSTGRES_USER: repotrail
+      POSTGRES_PASSWORD: ${REPOTRAIL_DB_PASSWORD:?Set REPOTRAIL_DB_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U repotrail -d repotrail"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  web:
+    <<: *runtime
+    ports:
+      - "${REPOTRAIL_BIND:-127.0.0.1}:${REPOTRAIL_PORT:-8766}:8765"
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  worker:
+    <<: *runtime
+    command: [repotrail, worker]
+    stop_grace_period: 210s
+
+volumes:
+  postgres-data:
+  team-data:
