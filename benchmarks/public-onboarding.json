@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "reference_review": "source-inspected; independent human review pending",
+  "repositories": [
+    {
+      "name": "requests",
+      "project_name": "Requests · HTTP 客户端",
+      "url": "https://github.com/psf/requests",
+      "revision": "3c7baaa05ab4aa49cc819ce3a819d260de19c157",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE",
+      "questions": [
+        {"id": "requests-get", "question": "requests.get 如何把一次 GET 请求交给通用请求函数？", "scope": "code", "file": "src/requests/api.py", "symbol": "src/requests/api.py::get", "fragment": "def get("},
+        {"id": "requests-prepare", "question": "Session.request 在发送前如何准备请求并合并环境配置？", "scope": "code", "file": "src/requests/sessions.py", "symbol": "src/requests/sessions.py::Session.request", "fragment": "prep = self.prepare_request(req)"},
+        {"id": "requests-send", "question": "Session.send 通过哪个 adapter 发送请求并处理响应钩子？", "scope": "code", "file": "src/requests/sessions.py", "symbol": "src/requests/sessions.py::Session.send", "fragment": "r = adapter.send(request, **kwargs)"},
+        {"id": "requests-errors", "question": "Response.raise_for_status 如何把客户端和服务端错误转换为异常？", "scope": "code", "file": "src/requests/models.py", "symbol": "src/requests/models.py::Response.raise_for_status", "fragment": "def raise_for_status("},
+        {"id": "requests-install", "question": "安装 Requests 的 pip 命令是什么？", "scope": "documents", "file": "README.md", "fragment": "python -m pip install requests"}
+      ]
+    },
+    {
+      "name": "starlette",
+      "project_name": "Starlette · ASGI 框架",
+      "url": "https://github.com/Kludex/starlette",
+      "revision": "271c277da0ff64e2048a4d46ecc812b9d61db5f6",
+      "license": "BSD-3-Clause",
+      "license_file": "LICENSE.md",
+      "questions": [
+        {"id": "starlette-stack", "question": "Starlette.build_middleware_stack 按什么顺序组合错误处理、用户中间件和异常处理？", "scope": "code", "file": "starlette/applications.py", "symbol": "starlette/applications.py::Starlette.build_middleware_stack", "fragment": "for cls, args, kwargs in reversed(middleware):"},
+        {"id": "starlette-call", "question": "Starlette.__call__ 第一次接收 ASGI 请求时如何构建并调用中间件栈？", "scope": "code", "file": "starlette/applications.py", "symbol": "starlette/applications.py::Starlette.__call__", "fragment": "await self.middleware_stack(scope, receive, send)"},
+        {"id": "starlette-route", "question": "Route.handle 在请求方法不被允许时如何响应？", "scope": "code", "file": "starlette/routing.py", "symbol": "starlette/routing.py::Route.handle", "fragment": "status_code=405"},
+        {"id": "starlette-middleware-doc", "question": "中间件默认包含哪些异常处理层，ServerErrorMiddleware 在哪一层？", "scope": "documents", "file": "docs/middleware.md", "fragment": "outermost middleware layer"},
+        {"id": "starlette-path-doc", "question": "路由参数支持哪些类型转换器，怎样在路径中声明整数参数？", "scope": "documents", "file": "docs/routing.md", "fragment": "{user_id:int}"}
+      ]
+    },
+    {
+      "name": "fastapi-template",
+      "project_name": "FastAPI Template · 研发入职",
+      "url": "https://github.com/fastapi/full-stack-fastapi-template",
+      "revision": "d40de23896d27d15c17a7bf9649123fd167a0aa8",
+      "release": "0.10.0",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "questions": [
+        {"id": "fastapi-login", "question": "登录接口 login_access_token 怎样验证账号并签发访问令牌？", "scope": "code", "file": "backend/app/api/routes/login.py", "symbol": "backend/app/api/routes/login.py::login_access_token", "fragment": "security.create_access_token("},
+        {"id": "fastapi-current-user", "question": "get_current_user 如何解析 JWT 并检查用户存在且仍处于激活状态？", "scope": "code", "file": "backend/app/api/deps.py", "symbol": "backend/app/api/deps.py::get_current_user", "fragment": "payload = jwt.decode("},
+        {"id": "fastapi-item-permission", "question": "read_item 怎样区分项目不存在和普通用户无权读取其他人的项目？", "scope": "code", "file": "backend/app/api/routes/items.py", "symbol": "backend/app/api/routes/items.py::read_item", "fragment": "item.owner_id != current_user.id"},
+        {"id": "fastapi-backend-workflow", "question": "后端开发应在哪里修改 SQLModel 数据模型、API 路由和 CRUD 工具？", "scope": "documents", "file": "backend/README.md", "fragment": "./backend/app/models.py"},
+        {"id": "fastapi-development", "question": "本地开发怎样用 Docker Compose 启动服务，后端 API 文档在哪个地址？", "scope": "documents", "file": "development.md", "fragment": "http://localhost:8000/docs"}
+      ]
+    }
+  ]
+}

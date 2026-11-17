@@ -22,7 +22,24 @@ python -m venv .venv
 
 打开[团队工作区](http://127.0.0.1:8766)。本地快速启动使用 SQLite 与内嵌 worker。Docker Compose 配置使用 PostgreSQL、pgvector 和独立持久化任务 worker。[部署、配置与备份恢复](docs/self-hosting.md)
 
-![源码阅读工作区](docs/assets/workspace.png)
+![基于 FastAPI 官方模板生成并发布的入职培训课程](docs/assets/team-course.png)
+
+### 带源码引用的持续追问
+
+![成员学习认证流程并继续追问](docs/assets/team-followup.png)
+
+<details>
+<summary>阅读起点、源码预览与项目知识库</summary>
+
+![模型推荐的项目阅读起点](docs/assets/team-reading.png)
+
+![源码快照预览](docs/assets/team-source.png)
+
+![从公开仓库建立的项目知识库](docs/assets/team-knowledge.png)
+
+</details>
+
+截图来自本地实际运行页面，使用锁定版本的 FastAPI 官方模板与真实模型 API。[测试资料与实测记录](benchmarks/reports/public-onboarding-2026-11-17.md)
 
 ## 单人源码阅读工作区
 
@@ -66,6 +83,18 @@ python -m venv .venv
 ~~~
 
 inspect 返回阅读起点，generate --flow 可以指定候选 ID。生成目录包含 trail.json、trail.md 与 reading.tour，后者可在 CodeTour 中打开。
+
+## 公开资料实测
+
+2026 年 11 月 17 日，使用锁定版本的 Requests、Starlette 和 FastAPI 官方全栈模板，合计 167 个 Python 文件、53 份 Markdown 文档，对 15 道固定检索题进行了测试。
+
+| 指标 | 关键词检索 | 混合检索 |
+| --- | ---: | ---: |
+| 前 5 个结果命中目标文件 | 11/15 | 14/15 |
+| 前 5 个结果命中精确代码符号 | 6/10 | 7/10 |
+| 文件 MRR@5 | 0.5889 | 0.6800 |
+
+5 路真实 API 问答与 1 个后台向量重建任务同时完成，客户端问答耗时中位数为 13.106 秒。浏览器检查覆盖源码引用和历史恢复。实测记录同时保留了 Flask 基础生成截断，以及第一轮追问遗漏令牌签发函数体的情况。[固定语料、方法与完整结果](benchmarks/reports/public-onboarding-2026-11-17.md)
 
 ## 分析范围
 

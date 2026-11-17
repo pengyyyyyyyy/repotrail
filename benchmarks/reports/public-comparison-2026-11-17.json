@@ -1,0 +1,300 @@
+{
+  "mode": "compare",
+  "model_evaluation_completed": true,
+  "reference_review_status": "assistant_source_inspection_complete_independent_human_review_pending",
+  "results": [
+    {
+      "repository": "requests",
+      "revision": "3c7baaa05ab4aa49cc819ce3a819d260de19c157",
+      "digest": "18ab9f246a4782a483797a514b63fdfb115a1f5c7e5e5eb058edb759514ac04e",
+      "reference_source_checks": [
+        {
+          "id": "requests-1",
+          "symbol": "src/requests/api.py::get",
+          "start": 74,
+          "end": 87,
+          "source_url": "https://github.com/psf/requests/blob/3c7baaa05ab4aa49cc819ce3a819d260de19c157/src/requests/api.py#L74"
+        },
+        {
+          "id": "requests-2",
+          "symbol": "src/requests/api.py::request",
+          "start": 24,
+          "end": 71,
+          "source_url": "https://github.com/psf/requests/blob/3c7baaa05ab4aa49cc819ce3a819d260de19c157/src/requests/api.py#L24"
+        },
+        {
+          "id": "requests-3",
+          "symbol": "src/requests/sessions.py::Session.request",
+          "start": 557,
+          "end": 653,
+          "source_url": "https://github.com/psf/requests/blob/3c7baaa05ab4aa49cc819ce3a819d260de19c157/src/requests/sessions.py#L557"
+        },
+        {
+          "id": "requests-4",
+          "symbol": "src/requests/sessions.py::Session.prepare_request",
+          "start": 511,
+          "end": 555,
+          "source_url": "https://github.com/psf/requests/blob/3c7baaa05ab4aa49cc819ce3a819d260de19c157/src/requests/sessions.py#L511"
+        },
+        {
+          "id": "requests-5",
+          "symbol": "src/requests/sessions.py::Session.send",
+          "start": 752,
+          "end": 829,
+          "source_url": "https://github.com/psf/requests/blob/3c7baaa05ab4aa49cc819ce3a819d260de19c157/src/requests/sessions.py#L752"
+        }
+      ],
+      "human_review_status": "pending",
+      "comparison": {
+        "baseline": {
+          "status": "complete",
+          "resumed": true,
+          "mechanical_symbol_coverage": 0.4,
+          "validation": {
+            "requested_steps": 3,
+            "located_steps": 3,
+            "static_connections": 2,
+            "unresolved_connections": 0,
+            "prose_review": "requires_human_review"
+          },
+          "metrics": {
+            "model": "deepseek-flash",
+            "calls": 1,
+            "prompt_tokens": 13643,
+            "completion_tokens": 1378,
+            "usage_complete": true,
+            "estimated_cost": 0.0057465,
+            "currency": "USD",
+            "input_price": 0.3,
+            "output_price": 1.2,
+            "elapsed_seconds": 9.7,
+            "finish_reason": "stop"
+          },
+          "human_semantic_score": null
+        },
+        "system": {
+          "status": "complete",
+          "resumed": true,
+          "mechanical_symbol_coverage": 0.4,
+          "validation": {
+            "requested_steps": 3,
+            "located_steps": 3,
+            "static_connections": 2,
+            "unresolved_connections": 0,
+            "prose_review": "requires_human_review"
+          },
+          "metrics": {
+            "model": "deepseek-flash",
+            "calls": 2,
+            "prompt_tokens": 29575,
+            "completion_tokens": 1139,
+            "usage_complete": true,
+            "estimated_cost": 0.0102393,
+            "currency": "USD",
+            "input_price": 0.3,
+            "output_price": 1.2,
+            "elapsed_seconds": 10.84,
+            "finish_reason": "stop"
+          },
+          "human_semantic_score": null
+        }
+      }
+    },
+    {
+      "repository": "click",
+      "revision": "e38188e9e205005d5af5f9e59df51904c984586a",
+      "digest": "87f6dc12c1d242ba71d76f090afa00c457d5c93828ab9f23767fb158c95a674e",
+      "reference_source_checks": [
+        {
+          "id": "click-1",
+          "symbol": "src/click/core.py::Command.__call__",
+          "start": 1674,
+          "end": 1676,
+          "source_url": "https://github.com/pallets/click/blob/e38188e9e205005d5af5f9e59df51904c984586a/src/click/core.py#L1674"
+        },
+        {
+          "id": "click-2",
+          "symbol": "src/click/core.py::Command.main",
+          "start": 1506,
+          "end": 1640,
+          "source_url": "https://github.com/pallets/click/blob/e38188e9e205005d5af5f9e59df51904c984586a/src/click/core.py#L1506"
+        },
+        {
+          "id": "click-3",
+          "symbol": "src/click/core.py::Command.make_context",
+          "start": 1353,
+          "end": 1388,
+          "source_url": "https://github.com/pallets/click/blob/e38188e9e205005d5af5f9e59df51904c984586a/src/click/core.py#L1353"
+        },
+        {
+          "id": "click-4",
+          "symbol": "src/click/core.py::Command.parse_args",
+          "start": 1390,
+          "end": 1421,
+          "source_url": "https://github.com/pallets/click/blob/e38188e9e205005d5af5f9e59df51904c984586a/src/click/core.py#L1390"
+        },
+        {
+          "id": "click-5",
+          "symbol": "src/click/core.py::Command.invoke",
+          "start": 1423,
+          "end": 1437,
+          "source_url": "https://github.com/pallets/click/blob/e38188e9e205005d5af5f9e59df51904c984586a/src/click/core.py#L1423"
+        }
+      ],
+      "human_review_status": "pending",
+      "comparison": {
+        "baseline": {
+          "status": "complete",
+          "resumed": true,
+          "mechanical_symbol_coverage": 1.0,
+          "validation": {
+            "requested_steps": 7,
+            "located_steps": 7,
+            "static_connections": 6,
+            "unresolved_connections": 0,
+            "prose_review": "requires_human_review"
+          },
+          "metrics": {
+            "model": "deepseek-flash",
+            "calls": 1,
+            "prompt_tokens": 14407,
+            "completion_tokens": 2767,
+            "usage_complete": true,
+            "estimated_cost": 0.0076425,
+            "currency": "USD",
+            "input_price": 0.3,
+            "output_price": 1.2,
+            "elapsed_seconds": 16.69,
+            "finish_reason": "stop"
+          },
+          "human_semantic_score": null
+        },
+        "system": {
+          "status": "complete",
+          "resumed": true,
+          "mechanical_symbol_coverage": 1.0,
+          "validation": {
+            "requested_steps": 7,
+            "located_steps": 7,
+            "static_connections": 6,
+            "unresolved_connections": 0,
+            "prose_review": "requires_human_review"
+          },
+          "metrics": {
+            "model": "deepseek-flash",
+            "calls": 2,
+            "prompt_tokens": 35722,
+            "completion_tokens": 2729,
+            "usage_complete": true,
+            "estimated_cost": 0.0139914,
+            "currency": "USD",
+            "input_price": 0.3,
+            "output_price": 1.2,
+            "elapsed_seconds": 15.94,
+            "finish_reason": "stop"
+          },
+          "human_semantic_score": null
+        }
+      }
+    },
+    {
+      "repository": "flask",
+      "revision": "49943b5a94413a530761350f04e896f76e8d620e",
+      "digest": "fc984f9f49439eb6f863bf91921a65c194314d121b7724655d91adc13db7a628",
+      "reference_source_checks": [
+        {
+          "id": "flask-1",
+          "symbol": "src/flask/app.py::Flask.__call__",
+          "start": 1679,
+          "end": 1686,
+          "source_url": "https://github.com/pallets/flask/blob/49943b5a94413a530761350f04e896f76e8d620e/src/flask/app.py#L1679"
+        },
+        {
+          "id": "flask-2",
+          "symbol": "src/flask/app.py::Flask.wsgi_app",
+          "start": 1627,
+          "end": 1677,
+          "source_url": "https://github.com/pallets/flask/blob/49943b5a94413a530761350f04e896f76e8d620e/src/flask/app.py#L1627"
+        },
+        {
+          "id": "flask-3",
+          "symbol": "src/flask/app.py::Flask.full_dispatch_request",
+          "start": 1023,
+          "end": 1054,
+          "source_url": "https://github.com/pallets/flask/blob/49943b5a94413a530761350f04e896f76e8d620e/src/flask/app.py#L1023"
+        },
+        {
+          "id": "flask-4",
+          "symbol": "src/flask/app.py::Flask.dispatch_request",
+          "start": 993,
+          "end": 1021,
+          "source_url": "https://github.com/pallets/flask/blob/49943b5a94413a530761350f04e896f76e8d620e/src/flask/app.py#L993"
+        },
+        {
+          "id": "flask-5",
+          "symbol": "src/flask/app.py::Flask.finalize_request",
+          "start": 1056,
+          "end": 1090,
+          "source_url": "https://github.com/pallets/flask/blob/49943b5a94413a530761350f04e896f76e8d620e/src/flask/app.py#L1056"
+        }
+      ],
+      "human_review_status": "pending",
+      "comparison": {
+        "baseline": {
+          "status": "failed",
+          "error": "模型未生成有效的导览结构",
+          "metrics": {
+            "model": "deepseek-flash",
+            "calls": 1,
+            "prompt_tokens": 14959,
+            "completion_tokens": 2800,
+            "usage_complete": true,
+            "estimated_cost": 0.007847699999999999,
+            "currency": "USD",
+            "input_price": 0.3,
+            "output_price": 1.2,
+            "elapsed_seconds": 17.16,
+            "finish_reason": "length"
+          },
+          "mechanical_symbol_coverage": null,
+          "human_semantic_score": null
+        },
+        "system": {
+          "status": "complete",
+          "resumed": false,
+          "mechanical_symbol_coverage": 1.0,
+          "validation": {
+            "requested_steps": 8,
+            "located_steps": 8,
+            "static_connections": 7,
+            "unresolved_connections": 0,
+            "prose_review": "requires_human_review"
+          },
+          "metrics": {
+            "model": "deepseek-flash",
+            "calls": 3,
+            "prompt_tokens": 56342,
+            "completion_tokens": 6159,
+            "usage_complete": true,
+            "estimated_cost": 0.024293399999999996,
+            "currency": "USD",
+            "input_price": 0.3,
+            "output_price": 1.2,
+            "elapsed_seconds": 34.78,
+            "finish_reason": "stop"
+          },
+          "human_semantic_score": null
+        }
+      }
+    }
+  ],
+  "failed_generations": 1,
+  "initial_interrupted_attempt": {
+    "repository": "flask",
+    "variant": "baseline",
+    "status": "failed",
+    "reason": "Invalid JSON before failure-preserving reporting was added",
+    "usage_recorded": false
+  },
+  "execution_note": "Requests and Click outputs were reused from the first invocation with unchanged source, model, endpoint and prompts. Flask baseline was attempted again and hit the 2800-token limit. The continued invocation also completed the Flask system variant. Seven generation attempts occurred in total."
+}

@@ -1,0 +1,507 @@
+{
+  "date": "2026-11-17",
+  "model": "deepseek-flash",
+  "corpus": "fastapi-template",
+  "revision": "d40de23896d27d15c17a7bf9649123fd167a0aa8",
+  "entry_count": 30,
+  "course": {
+    "chapters": 10,
+    "content_characters": 36129,
+    "chapter_titles": [
+      "第 1 章 项目定位与技术栈总览",
+      "第 2 章 后端代码结构与模块职责",
+      "第 3 章 后端启动、数据库就绪与初始数据流程",
+      "第 4 章 配置管理、环境变量与密钥安全",
+      "第 5 章 数据模型与 Alembic 迁移实践",
+      "第 6 章 认证与登录：JWT、密码哈希与密码找回",
+      "第 7 章 核心业务链路：用户与 Items 的请求处理",
+      "第 8 章 前端开发与自动生成 API 客户端",
+      "第 9 章 测试体系与代码质量规范",
+      "第 10 章 Docker Compose 本地运行、部署与持续交付"
+    ],
+    "review": "Source spot-check by the development assistant; independent human content review pending"
+  },
+  "member_checks": [
+    {
+      "check": "unassigned_member_cannot_open_project",
+      "status": 404
+    },
+    {
+      "check": "assigned_member_can_open_project",
+      "status": 200
+    },
+    {
+      "check": "member_cannot_read_draft",
+      "status": 404
+    },
+    {
+      "check": "member_can_read_published_course",
+      "status": 200
+    },
+    {
+      "check": "other_project_isolated",
+      "status": 404
+    },
+    {
+      "check": "provider_settings_admin_only",
+      "status": 403
+    },
+    {
+      "check": "member_conversation_private_from_admin",
+      "status": 404
+    }
+  ],
+  "browser": {
+    "browser": "msedge",
+    "viewport": {
+      "width": 1600,
+      "height": 1060
+    },
+    "checks": [
+      "login_and_open_assigned_project",
+      "reading_entries_rendered",
+      "source_snapshot_preview",
+      "repository_documents_rendered",
+      "saved_conversation_with_citations",
+      "answer_citation_opens_source",
+      "conversation_restored_after_reload",
+      "chapter_and_message_count_restored"
+    ],
+    "screenshots": [
+      "team-course.png",
+      "team-reading.png",
+      "team-source.png",
+      "team-knowledge.png",
+      "team-followup.png"
+    ],
+    "page_errors": [],
+    "http_failures": []
+  },
+  "answers": [
+    {
+      "question": "请解释从 /login/access-token 接收账号密码，到返回 JWT 令牌的调用流程。指出登录接口、认证函数和创建令牌函数的源码位置，引用资料，控制在 600 字以内。",
+      "answer": "## 登录到签发令牌的调用流程\n\n**1. 请求入口：`login_access_token`**\n位置：`backend/app/api/routes/login.py`（`backend/app/api/routes/login.py::login_access_token`，第 24–42 行）[S1]。\n\n该端点使用 OAuth2 `OAuth2PasswordRequestForm` 接收表单，`form_data.username` 被当作邮箱，`form_data.password` 作为明文密码，一并传给 `crud.authenticate` [S1]。因此登录请求是表单编码，不是 JSON。\n\n**2. 认证函数：`crud.authenticate`**\n位置：`backend/app/crud.py`（`backend/app/crud.py::authenticate`，第 45–60 行）[S5]。\n\n流程要点：\n- 先 `get_user_by_email` 查用户；用户不存在时仍对 `DUMMY_HASH` 跑一次 `verify_password`，以防止时序攻击 [S5]。\n- 用户存在时调用 `security.verify_password`（`backend/app/core/security.py`，内部为 `password_hash.verify_and_update`）[S4]。\n- 校验失败返回 `None`，登录端点据此抛 `400 Incorrect email or password` [S1][S5]。\n- 若哈希需升级（如旧 bcrypt → argon2），`authenticate` 会写回新哈希并提交 [S5][S6]。\n\n**3. 账号状态与令牌签发**\n`authenticate` 返回用户后，端点检查 `user.is_active`，为假则 `400 Inactive user`；否则用 `settings.ACCESS_TOKEN_EXPIRE_MINUTES` 构造 `timedelta`，调用 `security.create_access_token(user.id, expires_delta=...)`，以 `Token(access_token=...)` 返回 [S1]。令牌主体（`sub`）是用户 ID。\n\n**4. 后续请求的携带方式**\n测试工具把令牌放入 `Authorization: Bearer <token>` 头 [S3][S8]。`test_token` 通过 `CurrentUser` 依赖解析当前用户 [S2]；`get_current_user` 用 `jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])` 解码，失败返回 403，用户不存在 404，未激活 400 [S7]。\n\n**未覆盖信息**：`security.create_access_token` 的函数体源码位置未在本次资料中给出，仅有调用点 [S1]；可继续阅读 `backend/app/core/security.py` 确认签发细节。",
+      "status": "complete",
+      "seconds": 6.55,
+      "sources": [
+        {
+          "label": "S1",
+          "location": {
+            "file": "backend/app/api/routes/login.py",
+            "start": 24,
+            "end": 42,
+            "symbol_id": "backend/app/api/routes/login.py::login_access_token"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/api/routes/login.py#L24"
+        },
+        {
+          "label": "S2",
+          "location": {
+            "file": "backend/app/api/routes/login.py",
+            "start": 46,
+            "end": 50,
+            "symbol_id": "backend/app/api/routes/login.py::test_token"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/api/routes/login.py#L46"
+        },
+        {
+          "label": "S3",
+          "location": {
+            "file": "backend/tests/utils/user.py",
+            "start": 10,
+            "end": 19,
+            "symbol_id": "backend/tests/utils/user.py::user_authentication_headers"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/tests/utils/user.py#L10"
+        },
+        {
+          "label": "S4",
+          "location": {
+            "file": "backend/app/core/security.py",
+            "start": 29,
+            "end": 32,
+            "symbol_id": "backend/app/core/security.py::verify_password"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/core/security.py#L29"
+        },
+        {
+          "label": "S5",
+          "location": {
+            "file": "backend/app/crud.py",
+            "start": 45,
+            "end": 60,
+            "symbol_id": "backend/app/crud.py::authenticate"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/crud.py#L45"
+        },
+        {
+          "label": "S6",
+          "location": {
+            "file": "backend/tests/crud/test_user.py",
+            "start": 96,
+            "end": 130,
+            "symbol_id": "backend/tests/crud/test_user.py::test_authenticate_user_with_bcrypt_upgrades_to_argon2"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/tests/crud/test_user.py#L96"
+        },
+        {
+          "label": "S7",
+          "location": {
+            "file": "backend/app/api/deps.py",
+            "start": 30,
+            "end": 46,
+            "symbol_id": "backend/app/api/deps.py::get_current_user"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/api/deps.py#L30"
+        },
+        {
+          "label": "S8",
+          "location": {
+            "file": "backend/tests/utils/utils.py",
+            "start": 17,
+            "end": 26,
+            "symbol_id": "backend/tests/utils/utils.py::get_superuser_token_headers"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/tests/utils/utils.py#L17"
+        }
+      ]
+    },
+    {
+      "question": "沿用上面的登录流程，普通用户拿到令牌后读取别人的 Item，系统在哪两处校验身份和归属？分别说明用户不存在、账号停用、Item 不存在、无权读取时的 HTTP 状态码，并给出源码引用。控制在 700 字以内。",
+      "answer": "## 两处校验的位置\n\n**第一处：身份校验（依赖注入，先执行）**\n`get_current_user`，位于 `backend/app/api/deps.py`（第 30–46 行），通过 `CurrentUser = Annotated[User, Depends(get_current_user)]` 注入到路由 [S2]。它用 `jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])` 解码令牌，并从 `sub`（用户 ID）到数据库取用户 [S1]。\n\n**第二处：资源归属校验（路由函数内，后执行）**\n`read_item`，位于 `backend/app/api/routes/items.py`（第 48–57 行）。先 `session.get(Item, id)` 取条目，再判断 `not current_user.is_superuser and (item.owner_id != current_user.id)` 时拒绝 [S3]。\n\n## 四种情况的 HTTP 状态码\n\n| 情况 | 状态码 | detail | 出处 |\n|---|---|---|---|\n| 令牌无法解码/校验 | 403 | `Could not validate credentials` | [S1] |\n| 令牌合法但用户不存在 | 404 | `User not found` | [S1] |\n| 用户存在但 `is_active` 为假 | 400 | `Inactive user` | [S1] |\n| Item 不存在 | 404 | `Item not found` | [S3]，测试见 [S4] |\n| 存在但非本人且非超级用户 | 403 | `Not enough permissions` | [S3]，测试见 [S5] |\n\n## 执行顺序与要点\n\n依赖解析发生在路由函数体之前，所以普通用户访问别人的 Item 时，先经过“令牌 → 用户”三道判定（403/404/400），全部通过后才进入 `read_item`，此时才可能得到 404（条目不存在）或 403（无权限）[S1][S3]。\n\n两个 403 含义不同：`get_current_user` 的 403 是**凭据无效**，`read_item` 的 403 是**凭据有效但无访问权**；调用方需结合 `detail` 区分。两个 404 同理：一个是用户不存在，一个是条目不存在。\n\n**未覆盖信息**：`read_item` 未显式比较 `item` 与用户关系之外的共享/公开可见性逻辑，证据中只有“超级用户或所有者”这一条规则 [S3]。若项目后续引入分享机制，需在此处扩展判断。",
+      "status": "complete",
+      "seconds": 7.62,
+      "sources": [
+        {
+          "label": "S1",
+          "location": {
+            "file": "backend/app/api/deps.py",
+            "start": 30,
+            "end": 46,
+            "symbol_id": "backend/app/api/deps.py::get_current_user"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/api/deps.py#L30"
+        },
+        {
+          "label": "S2",
+          "location": {
+            "file": "backend/app/api/deps.py",
+            "start": 47,
+            "end": 51,
+            "symbol_id": null
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/api/deps.py#L47"
+        },
+        {
+          "label": "S3",
+          "location": {
+            "file": "backend/app/api/routes/items.py",
+            "start": 48,
+            "end": 57,
+            "symbol_id": "backend/app/api/routes/items.py::read_item"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/app/api/routes/items.py#L48"
+        },
+        {
+          "label": "S4",
+          "location": {
+            "file": "backend/tests/api/routes/test_items.py",
+            "start": 43,
+            "end": 52,
+            "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item_not_found"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/tests/api/routes/test_items.py#L43"
+        },
+        {
+          "label": "S5",
+          "location": {
+            "file": "backend/tests/api/routes/test_items.py",
+            "start": 55,
+            "end": 65,
+            "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item_not_enough_permissions"
+          },
+          "source_url": "https://github.com/fastapi/full-stack-fastapi-template/blob/d40de23896d27d15c17a7bf9649123fd167a0aa8/backend/tests/api/routes/test_items.py#L55"
+        }
+      ]
+    }
+  ],
+  "answer_review": {
+    "reviewer": "development assistant, source spot-check",
+    "first_question": {
+      "required_function_bodies": [
+        "login_access_token",
+        "authenticate",
+        "create_access_token"
+      ],
+      "located_function_bodies": [
+        "login_access_token",
+        "authenticate"
+      ],
+      "missing_function_body": "create_access_token",
+      "note": "The answer correctly stated that its retrieved evidence did not include the token creation body."
+    },
+    "followup": {
+      "required_status_codes": {
+        "user_missing": 404,
+        "user_inactive": 400,
+        "item_missing": 404,
+        "item_forbidden": 403
+      },
+      "observed_status_codes_correct": true
+    }
+  },
+  "generation_usage": [
+    {
+      "model": "deepseek-flash",
+      "calls": 2,
+      "prompt_tokens": 9088,
+      "completion_tokens": 952,
+      "usage_complete": true,
+      "estimated_cost": 0.0038688000000000004,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 6.8,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 2,
+      "prompt_tokens": 7401,
+      "completion_tokens": 826,
+      "usage_complete": true,
+      "estimated_cost": 0.0032114999999999995,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 5.69,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 5231,
+      "completion_tokens": 3879,
+      "usage_complete": true,
+      "estimated_cost": 0.006224100000000001,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 17.89,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 3920,
+      "completion_tokens": 2344,
+      "usage_complete": true,
+      "estimated_cost": 0.0039888,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 14.02,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 4714,
+      "completion_tokens": 3617,
+      "usage_complete": true,
+      "estimated_cost": 0.0057545999999999995,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 23.66,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 3686,
+      "completion_tokens": 2503,
+      "usage_complete": true,
+      "estimated_cost": 0.0041094,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 15.22,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 3275,
+      "completion_tokens": 2867,
+      "usage_complete": true,
+      "estimated_cost": 0.0044229,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 17.8,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 3137,
+      "completion_tokens": 3323,
+      "usage_complete": true,
+      "estimated_cost": 0.004928699999999999,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 19.09,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 4367,
+      "completion_tokens": 2060,
+      "usage_complete": true,
+      "estimated_cost": 0.0037821,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 11.72,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 2881,
+      "completion_tokens": 1932,
+      "usage_complete": true,
+      "estimated_cost": 0.0031826999999999997,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 11.41,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 1979,
+      "completion_tokens": 1729,
+      "usage_complete": true,
+      "estimated_cost": 0.0026684999999999994,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 10.19,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 5264,
+      "completion_tokens": 3104,
+      "usage_complete": true,
+      "estimated_cost": 0.005304,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 18.86,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 12280,
+      "completion_tokens": 3207,
+      "usage_complete": true,
+      "estimated_cost": 0.0075324,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 18.53,
+      "finish_reason": "stop"
+    },
+    {
+      "model": "deepseek-flash",
+      "calls": 1,
+      "prompt_tokens": 10187,
+      "completion_tokens": 4374,
+      "usage_complete": true,
+      "estimated_cost": 0.0083049,
+      "currency": "USD",
+      "input_price": 0.3,
+      "output_price": 1.2,
+      "elapsed_seconds": 23.09,
+      "finish_reason": "stop"
+    }
+  ],
+  "concurrency": {
+    "protocol": "Five simultaneous conversations under one administrator account plus one background re-embedding job; warm local model cache; no answer-quality scoring for load questions",
+    "summary": {
+      "complete": 5,
+      "total": 5,
+      "median_seconds": 13.106,
+      "maximum_seconds": 13.749,
+      "usage_available": true,
+      "prompt_tokens": 56551,
+      "completion_tokens": 6470,
+      "estimated_costs": [
+        {
+          "amount": 0.0051084,
+          "currency": "USD"
+        },
+        {
+          "amount": 0.0043958999999999995,
+          "currency": "USD"
+        },
+        {
+          "amount": 0.0047382,
+          "currency": "USD"
+        },
+        {
+          "amount": 0.0053373000000000006,
+          "currency": "USD"
+        },
+        {
+          "amount": 0.0051495,
+          "currency": "USD"
+        }
+      ]
+    },
+    "background": {
+      "status": "complete",
+      "seconds": 18.798
+    },
+    "requests": [
+      {
+        "number": 0,
+        "status": "complete",
+        "seconds": 13.106,
+        "error": ""
+      },
+      {
+        "number": 1,
+        "status": "complete",
+        "seconds": 12.704,
+        "error": ""
+      },
+      {
+        "number": 2,
+        "status": "complete",
+        "seconds": 13.749,
+        "error": ""
+      },
+      {
+        "number": 3,
+        "status": "complete",
+        "seconds": 12.679,
+        "error": ""
+      },
+      {
+        "number": 4,
+        "status": "complete",
+        "seconds": 13.239,
+        "error": ""
+      }
+    ]
+  }
+}

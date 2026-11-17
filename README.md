@@ -22,7 +22,24 @@ python -m venv .venv
 
 On Windows use `.venv\Scripts\python.exe`. Open [the team workspace](http://127.0.0.1:8766). The local quick start uses SQLite and an embedded worker. The supplied Docker Compose deployment uses PostgreSQL, pgvector and a separate durable worker. [Deployment and operations](docs/self-hosting.md)
 
-![RepoTrail reading workspace](docs/assets/workspace.png)
+![Published onboarding course generated from the FastAPI template](docs/assets/team-course.png)
+
+### Follow-up questions with source citations
+
+![A member studying the authentication flow and asking follow-up questions](docs/assets/team-followup.png)
+
+<details>
+<summary>Reading entry points, source preview and project knowledge</summary>
+
+![Model-recommended reading entry points](docs/assets/team-reading.png)
+
+![Source snapshot preview](docs/assets/team-source.png)
+
+![Project documents indexed from the public repository](docs/assets/team-knowledge.png)
+
+</details>
+
+Screenshots come from the running local application using the pinned public FastAPI template and a real model API. [Test corpus and recorded results](benchmarks/reports/public-onboarding-2026-11-17.md)
 
 ## Single-user reading workspace
 
@@ -74,6 +91,18 @@ python -m benchmarks.run verify
 ~~~
 
 Run these commands with the virtual environment's Python. The inspect command accepts a local directory or public GitHub HTTPS URL. Use generate --flow with an exact candidate ID to select an entry point.
+
+## Public-data evaluation
+
+The 2026-11-17 corpus pins Requests, Starlette and the official FastAPI Full Stack Template, totaling 167 Python files and 53 Markdown documents. Fifteen fixed retrieval questions produced these results.
+
+| Metric | Keyword | Hybrid |
+| --- | ---: | ---: |
+| Target file in top 5 | 11/15 | 14/15 |
+| Exact code symbol in top 5 | 6/10 | 7/10 |
+| File MRR@5 | 0.5889 | 0.6800 |
+
+Five concurrent real-API questions completed alongside one background re-embedding job, with a 13.106 s median client-observed latency. Browser checks cover source citations and restored conversations. The report includes a truncated Flask baseline and a missing token-creation function body in the first follow-up answer. [Pinned corpus, methods and recorded results](benchmarks/reports/public-onboarding-2026-11-17.md)
 
 ## Scope
 
