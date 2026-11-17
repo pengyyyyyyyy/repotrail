@@ -1,0 +1,1321 @@
+{
+  "date_utc": "2026-11-17T02:39:16.610778+00:00",
+  "python": "3.12.14",
+  "platform": "Windows",
+  "embedding": {
+    "mode": "local",
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "base_url": ""
+  },
+  "corpus": [
+    {
+      "repository": "requests",
+      "url": "https://github.com/psf/requests",
+      "revision": "3c7baaa05ab4aa49cc819ce3a819d260de19c157",
+      "license": "Apache-2.0",
+      "files": 37,
+      "symbols": 787,
+      "documents": 13,
+      "chunks": 1652
+    },
+    {
+      "repository": "starlette",
+      "url": "https://github.com/Kludex/starlette",
+      "revision": "271c277da0ff64e2048a4d46ecc812b9d61db5f6",
+      "license": "BSD-3-Clause",
+      "files": 84,
+      "symbols": 2147,
+      "documents": 33,
+      "chunks": 4398
+    },
+    {
+      "repository": "fastapi-template",
+      "url": "https://github.com/fastapi/full-stack-fastapi-template",
+      "revision": "d40de23896d27d15c17a7bf9649123fd167a0aa8",
+      "license": "MIT",
+      "files": 46,
+      "symbols": 163,
+      "documents": 7,
+      "chunks": 526
+    }
+  ],
+  "metric": "file Hit@5 and file MRR@5; exact symbol Hit@5 for code questions",
+  "reference_review": "source-inspected; independent human review pending",
+  "summary": {
+    "keyword": {
+      "file_hits_at_5": 11,
+      "questions": 15,
+      "symbol_hits_at_5": 6,
+      "symbol_questions": 10,
+      "mrr_at_5": 0.5889
+    },
+    "hybrid": {
+      "file_hits_at_5": 14,
+      "questions": 15,
+      "symbol_hits_at_5": 7,
+      "symbol_questions": 10,
+      "mrr_at_5": 0.68
+    }
+  },
+  "results": [
+    {
+      "repository": "requests",
+      "id": "requests-get",
+      "mode": "keyword",
+      "question": "requests.get 如何把一次 GET 请求交给通用请求函数？",
+      "scope": "code",
+      "expected_file": "src/requests/api.py",
+      "file_rank": null,
+      "symbol_hit_at_5": false,
+      "seconds": 0.2,
+      "sources": [
+        {
+          "file": "tests/test_requests.py",
+          "start": 2913,
+          "end": 2926,
+          "symbol_id": "tests/test_requests.py::TestPreparingURLs.test_status_code_425"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 945,
+          "end": 955,
+          "symbol_id": "tests/test_requests.py::TestRequests"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 2388,
+          "end": 2395,
+          "symbol_id": "tests/test_requests.py::TestCaseInsensitiveDict.test_get"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 1068,
+          "end": 1071,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_urlencoded_get_query_multivalued_param"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 956,
+          "end": 957,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_unicode_get"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-prepare",
+      "mode": "keyword",
+      "question": "Session.request 在发送前如何准备请求并合并环境配置？",
+      "scope": "code",
+      "expected_file": "src/requests/sessions.py",
+      "file_rank": 2,
+      "symbol_hit_at_5": false,
+      "seconds": 0.1972,
+      "sources": [
+        {
+          "file": "tests/test_requests.py",
+          "start": 624,
+          "end": 630,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_respect_proxy_env_on_send_session_prepared_request"
+        },
+        {
+          "file": "src/requests/sessions.py",
+          "start": 108,
+          "end": 124,
+          "symbol_id": "src/requests/sessions.py::merge_hooks"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 617,
+          "end": 622,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_respect_proxy_env_on_send_self_prepared_request"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 647,
+          "end": 651,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_respect_proxy_env_on_request"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 1211,
+          "end": 1211,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_session_hooks_are_overridden_by_request_hooks"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-send",
+      "mode": "keyword",
+      "question": "Session.send 通过哪个 adapter 发送请求并处理响应钩子？",
+      "scope": "code",
+      "expected_file": "src/requests/sessions.py",
+      "file_rank": null,
+      "symbol_hit_at_5": false,
+      "seconds": 0.2119,
+      "sources": [
+        {
+          "file": "tests/test_requests.py",
+          "start": 2117,
+          "end": 2121,
+          "symbol_id": "tests/test_requests.py::TestRequests._patch_adapter_gzipped_redirect"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 1744,
+          "end": 1755,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_session_get_adapter_prefix_without_trailing_slash"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 1731,
+          "end": 1742,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_session_get_adapter_prefix_with_trailing_slash"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 1709,
+          "end": 1717,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_session_get_adapter_prefix_matching_mixed_case"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 1719,
+          "end": 1729,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_session_get_adapter_prefix_matching_is_case_insensitive"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-errors",
+      "mode": "keyword",
+      "question": "Response.raise_for_status 如何把客户端和服务端错误转换为异常？",
+      "scope": "code",
+      "expected_file": "src/requests/models.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.1958,
+      "sources": [
+        {
+          "file": "src/requests/models.py",
+          "start": 1144,
+          "end": 1171,
+          "symbol_id": "src/requests/models.py::Response.raise_for_status"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 1496,
+          "end": 1506,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_response_reason_unicode_fallback"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 934,
+          "end": 940,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_status_raising"
+        },
+        {
+          "file": "src/requests/models.py",
+          "start": 862,
+          "end": 874,
+          "symbol_id": "src/requests/models.py::Response.ok"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 818,
+          "end": 833,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_POSTBIN_GET_POST_FILES"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-install",
+      "mode": "keyword",
+      "question": "安装 Requests 的 pip 命令是什么？",
+      "scope": "documents",
+      "expected_file": "README.md",
+      "file_rank": 3,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0211,
+      "sources": [
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 339,
+          "end": 390
+        },
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 1228,
+          "end": 1284
+        },
+        {
+          "file": "README.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 1228,
+          "end": 1284
+        },
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 339,
+          "end": 390
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-get",
+      "mode": "hybrid",
+      "question": "requests.get 如何把一次 GET 请求交给通用请求函数？",
+      "scope": "code",
+      "expected_file": "src/requests/api.py",
+      "file_rank": 2,
+      "symbol_hit_at_5": true,
+      "seconds": 1.3324,
+      "sources": [
+        {
+          "file": "src/requests/utils.py",
+          "start": 819,
+          "end": 820,
+          "symbol_id": "src/requests/utils.py::should_bypass_proxies.get_proxy"
+        },
+        {
+          "file": "src/requests/api.py",
+          "start": 74,
+          "end": 87,
+          "symbol_id": "src/requests/api.py::get"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 205,
+          "end": 212,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_HTTP_200_OK_GET_ALTERNATIVE"
+        },
+        {
+          "file": "src/requests/sessions.py",
+          "start": 655,
+          "end": 671,
+          "symbol_id": "src/requests/sessions.py::Session.get"
+        },
+        {
+          "file": "src/requests/structures.py",
+          "start": 129,
+          "end": 130,
+          "symbol_id": "src/requests/structures.py::LookupDict.get"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-prepare",
+      "mode": "hybrid",
+      "question": "Session.request 在发送前如何准备请求并合并环境配置？",
+      "scope": "code",
+      "expected_file": "src/requests/sessions.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": false,
+      "seconds": 0.2301,
+      "sources": [
+        {
+          "file": "src/requests/sessions.py",
+          "start": 108,
+          "end": 124,
+          "symbol_id": "src/requests/sessions.py::merge_hooks"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 624,
+          "end": 630,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_respect_proxy_env_on_send_session_prepared_request"
+        },
+        {
+          "file": "src/requests/sessions.py",
+          "start": 76,
+          "end": 105,
+          "symbol_id": "src/requests/sessions.py::merge_setting"
+        },
+        {
+          "file": "src/requests/sessions.py",
+          "start": 511,
+          "end": 555,
+          "symbol_id": "src/requests/sessions.py::Session.prepare_request"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 617,
+          "end": 622,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_respect_proxy_env_on_send_self_prepared_request"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-send",
+      "mode": "hybrid",
+      "question": "Session.send 通过哪个 adapter 发送请求并处理响应钩子？",
+      "scope": "code",
+      "expected_file": "src/requests/sessions.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.2262,
+      "sources": [
+        {
+          "file": "src/requests/sessions.py",
+          "start": 752,
+          "end": 811,
+          "symbol_id": "src/requests/sessions.py::Session.send"
+        },
+        {
+          "file": "src/requests/sessions.py",
+          "start": 870,
+          "end": 881,
+          "symbol_id": "src/requests/sessions.py::Session.get_adapter"
+        },
+        {
+          "file": "src/requests/sessions.py",
+          "start": 132,
+          "end": 132,
+          "symbol_id": "src/requests/sessions.py::SessionRedirectMixin.send"
+        },
+        {
+          "file": "src/requests/adapters.py",
+          "start": 158,
+          "end": 200,
+          "symbol_id": "src/requests/adapters.py::HTTPAdapter"
+        },
+        {
+          "file": "src/requests/sessions.py",
+          "start": 286,
+          "end": 307,
+          "symbol_id": "src/requests/sessions.py::SessionRedirectMixin.resolve_redirects"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-errors",
+      "mode": "hybrid",
+      "question": "Response.raise_for_status 如何把客户端和服务端错误转换为异常？",
+      "scope": "code",
+      "expected_file": "src/requests/models.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.2273,
+      "sources": [
+        {
+          "file": "src/requests/models.py",
+          "start": 1144,
+          "end": 1171,
+          "symbol_id": "src/requests/models.py::Response.raise_for_status"
+        },
+        {
+          "file": "src/requests/models.py",
+          "start": 862,
+          "end": 874,
+          "symbol_id": "src/requests/models.py::Response.ok"
+        },
+        {
+          "file": "tests/test_requests.py",
+          "start": 934,
+          "end": 940,
+          "symbol_id": "tests/test_requests.py::TestRequests.test_status_raising"
+        },
+        {
+          "file": "src/requests/models.py",
+          "start": 847,
+          "end": 855,
+          "symbol_id": "src/requests/models.py::Response.__nonzero__"
+        },
+        {
+          "file": "src/requests/models.py",
+          "start": 837,
+          "end": 845,
+          "symbol_id": "src/requests/models.py::Response.__bool__"
+        }
+      ]
+    },
+    {
+      "repository": "requests",
+      "id": "requests-install",
+      "mode": "hybrid",
+      "question": "安装 Requests 的 pip 命令是什么？",
+      "scope": "documents",
+      "expected_file": "README.md",
+      "file_rank": 5,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0292,
+      "sources": [
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 339,
+          "end": 390
+        },
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 1228,
+          "end": 1284
+        },
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 678,
+          "end": 751
+        },
+        {
+          "file": "HISTORY.md",
+          "page": 1,
+          "start": 197,
+          "end": 236
+        },
+        {
+          "file": "README.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-stack",
+      "mode": "keyword",
+      "question": "Starlette.build_middleware_stack 按什么顺序组合错误处理、用户中间件和异常处理？",
+      "scope": "code",
+      "expected_file": "starlette/applications.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.5327,
+      "sources": [
+        {
+          "file": "starlette/applications.py",
+          "start": 92,
+          "end": 96,
+          "symbol_id": "starlette/applications.py::Starlette.__call__"
+        },
+        {
+          "file": "starlette/applications.py",
+          "start": 63,
+          "end": 83,
+          "symbol_id": "starlette/applications.py::Starlette.build_middleware_stack"
+        },
+        {
+          "file": "tests/middleware/test_opentelemetry.py",
+          "start": 119,
+          "end": 135,
+          "symbol_id": "tests/middleware/test_opentelemetry.py::test_provider_configured_after_middleware_stack_is_built"
+        },
+        {
+          "file": "tests/test_applications.py",
+          "start": 465,
+          "end": 465,
+          "symbol_id": "tests/test_applications.py::test_middleware_stack_init"
+        },
+        {
+          "file": "starlette/testclient.py",
+          "start": 577,
+          "end": 581,
+          "symbol_id": "starlette/testclient.py::TestClient.__enter__"
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-call",
+      "mode": "keyword",
+      "question": "Starlette.__call__ 第一次接收 ASGI 请求时如何构建并调用中间件栈？",
+      "scope": "code",
+      "expected_file": "starlette/applications.py",
+      "file_rank": null,
+      "symbol_hit_at_5": false,
+      "seconds": 0.5016,
+      "sources": [
+        {
+          "file": "starlette/background.py",
+          "start": 34,
+          "end": 36,
+          "symbol_id": "starlette/background.py::BackgroundTasks.__call__"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 582,
+          "end": 583,
+          "symbol_id": "starlette/routing.py::_DefaultLifespan.__call__"
+        },
+        {
+          "file": "starlette/config.py",
+          "start": 65,
+          "end": 85,
+          "symbol_id": "starlette/config.py::Config"
+        },
+        {
+          "file": "starlette/middleware/base.py",
+          "start": 112,
+          "end": 112,
+          "symbol_id": "starlette/middleware/base.py::BaseHTTPMiddleware.__call__.call_next"
+        },
+        {
+          "file": "starlette/testclient.py",
+          "start": 70,
+          "end": 72,
+          "symbol_id": "starlette/testclient.py::_WrapASGI2.__call__"
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-route",
+      "mode": "keyword",
+      "question": "Route.handle 在请求方法不被允许时如何响应？",
+      "scope": "code",
+      "expected_file": "starlette/routing.py",
+      "file_rank": 2,
+      "symbol_hit_at_5": true,
+      "seconds": 0.5199,
+      "sources": [
+        {
+          "file": "tests/middleware/test_opentelemetry.py",
+          "start": 404,
+          "end": 405,
+          "symbol_id": "tests/middleware/test_opentelemetry.py::test_http_span_omits_route_for_custom_route.CustomRoute.handle"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 685,
+          "end": 735,
+          "symbol_id": "starlette/routing.py::Router.app"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 280,
+          "end": 289,
+          "symbol_id": "starlette/routing.py::Route.handle"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 183,
+          "end": 184,
+          "symbol_id": "starlette/routing.py::BaseRoute.handle"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 362,
+          "end": 363,
+          "symbol_id": "starlette/routing.py::WebSocketRoute.handle"
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-middleware-doc",
+      "mode": "keyword",
+      "question": "中间件默认包含哪些异常处理层，ServerErrorMiddleware 在哪一层？",
+      "scope": "documents",
+      "expected_file": "docs/middleware.md",
+      "file_rank": 1,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0604,
+      "sources": [
+        {
+          "file": "docs/middleware.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "docs/middleware.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "docs/exceptions.md",
+          "page": 1,
+          "start": 106,
+          "end": 152
+        },
+        {
+          "file": "docs/middleware.md",
+          "page": 1,
+          "start": 878,
+          "end": 921
+        },
+        {
+          "file": "docs/release-notes.md",
+          "page": 1,
+          "start": 100,
+          "end": 122
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-path-doc",
+      "mode": "keyword",
+      "question": "路由参数支持哪些类型转换器，怎样在路径中声明整数参数？",
+      "scope": "documents",
+      "expected_file": "docs/routing.md",
+      "file_rank": null,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0589,
+      "sources": []
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-stack",
+      "mode": "hybrid",
+      "question": "Starlette.build_middleware_stack 按什么顺序组合错误处理、用户中间件和异常处理？",
+      "scope": "code",
+      "expected_file": "starlette/applications.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.6438,
+      "sources": [
+        {
+          "file": "starlette/applications.py",
+          "start": 63,
+          "end": 83,
+          "symbol_id": "starlette/applications.py::Starlette.build_middleware_stack"
+        },
+        {
+          "file": "starlette/applications.py",
+          "start": 104,
+          "end": 107,
+          "symbol_id": "starlette/applications.py::Starlette.add_middleware"
+        },
+        {
+          "file": "starlette/applications.py",
+          "start": 92,
+          "end": 96,
+          "symbol_id": "starlette/applications.py::Starlette.__call__"
+        },
+        {
+          "file": "starlette/middleware/errors.py",
+          "start": 127,
+          "end": 138,
+          "symbol_id": "starlette/middleware/errors.py::ServerErrorMiddleware"
+        },
+        {
+          "file": "starlette/middleware/__init__.py",
+          "start": 21,
+          "end": 21,
+          "symbol_id": "starlette/middleware/__init__.py::Middleware"
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-call",
+      "mode": "hybrid",
+      "question": "Starlette.__call__ 第一次接收 ASGI 请求时如何构建并调用中间件栈？",
+      "scope": "code",
+      "expected_file": "starlette/applications.py",
+      "file_rank": null,
+      "symbol_hit_at_5": false,
+      "seconds": 0.7166,
+      "sources": [
+        {
+          "file": "starlette/middleware/base.py",
+          "start": 112,
+          "end": 112,
+          "symbol_id": "starlette/middleware/base.py::BaseHTTPMiddleware.__call__.call_next"
+        },
+        {
+          "file": "starlette/middleware/wsgi.py",
+          "start": 82,
+          "end": 85,
+          "symbol_id": "starlette/middleware/wsgi.py::WSGIMiddleware.__call__"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 679,
+          "end": 683,
+          "symbol_id": "starlette/routing.py::Router.__call__"
+        },
+        {
+          "file": "starlette/middleware/gzip.py",
+          "start": 102,
+          "end": 104,
+          "symbol_id": "starlette/middleware/gzip.py::IdentityResponder.__call__"
+        },
+        {
+          "file": "starlette/staticfiles.py",
+          "start": 88,
+          "end": 105,
+          "symbol_id": "starlette/staticfiles.py::StaticFiles.__call__"
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-route",
+      "mode": "hybrid",
+      "question": "Route.handle 在请求方法不被允许时如何响应？",
+      "scope": "code",
+      "expected_file": "starlette/routing.py",
+      "file_rank": 3,
+      "symbol_hit_at_5": false,
+      "seconds": 0.6663,
+      "sources": [
+        {
+          "file": "tests/middleware/test_opentelemetry.py",
+          "start": 404,
+          "end": 405,
+          "symbol_id": "tests/middleware/test_opentelemetry.py::test_http_span_omits_route_for_custom_route.CustomRoute.handle"
+        },
+        {
+          "file": "tests/test_routing.py",
+          "start": 1102,
+          "end": 1104,
+          "symbol_id": "tests/test_routing.py::test_route_repr"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 362,
+          "end": 363,
+          "symbol_id": "starlette/routing.py::WebSocketRoute.handle"
+        },
+        {
+          "file": "tests/test_routing.py",
+          "start": 1107,
+          "end": 1109,
+          "symbol_id": "tests/test_routing.py::test_route_repr_without_methods"
+        },
+        {
+          "file": "starlette/routing.py",
+          "start": 765,
+          "end": 772,
+          "symbol_id": "starlette/routing.py::Router.add_websocket_route"
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-middleware-doc",
+      "mode": "hybrid",
+      "question": "中间件默认包含哪些异常处理层，ServerErrorMiddleware 在哪一层？",
+      "scope": "documents",
+      "expected_file": "docs/middleware.md",
+      "file_rank": 2,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0972,
+      "sources": [
+        {
+          "file": "docs/exceptions.md",
+          "page": 1,
+          "start": 106,
+          "end": 152
+        },
+        {
+          "file": "docs/middleware.md",
+          "page": 1,
+          "start": 878,
+          "end": 921
+        },
+        {
+          "file": "docs/middleware.md",
+          "page": 1,
+          "start": 191,
+          "end": 228
+        },
+        {
+          "file": "docs/middleware.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "docs/middleware.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        }
+      ]
+    },
+    {
+      "repository": "starlette",
+      "id": "starlette-path-doc",
+      "mode": "hybrid",
+      "question": "路由参数支持哪些类型转换器，怎样在路径中声明整数参数？",
+      "scope": "documents",
+      "expected_file": "docs/routing.md",
+      "file_rank": 1,
+      "symbol_hit_at_5": null,
+      "seconds": 0.1041,
+      "sources": [
+        {
+          "file": "docs/routing.md",
+          "page": 1,
+          "start": 292,
+          "end": 357
+        },
+        {
+          "file": "docs/routing.md",
+          "page": 1,
+          "start": 292,
+          "end": 357
+        },
+        {
+          "file": "docs/config.md",
+          "page": 1,
+          "start": 118,
+          "end": 189
+        },
+        {
+          "file": "docs/schemas.md",
+          "page": 1,
+          "start": 1,
+          "end": 68
+        },
+        {
+          "file": "docs/routing.md",
+          "page": 1,
+          "start": 356,
+          "end": 405
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-login",
+      "mode": "keyword",
+      "question": "登录接口 login_access_token 怎样验证账号并签发访问令牌？",
+      "scope": "code",
+      "expected_file": "backend/app/api/routes/login.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.0442,
+      "sources": [
+        {
+          "file": "backend/app/api/routes/login.py",
+          "start": 24,
+          "end": 42,
+          "symbol_id": "backend/app/api/routes/login.py::login_access_token"
+        },
+        {
+          "file": "backend/tests/api/routes/test_login.py",
+          "start": 16,
+          "end": 25,
+          "symbol_id": "backend/tests/api/routes/test_login.py::test_get_access_token"
+        },
+        {
+          "file": "backend/tests/api/routes/test_login.py",
+          "start": 28,
+          "end": 34,
+          "symbol_id": "backend/tests/api/routes/test_login.py::test_get_access_token_incorrect_password"
+        },
+        {
+          "file": "backend/tests/utils/utils.py",
+          "start": 17,
+          "end": 26,
+          "symbol_id": "backend/tests/utils/utils.py::get_superuser_token_headers"
+        },
+        {
+          "file": "backend/tests/api/routes/test_login.py",
+          "start": 37,
+          "end": 46,
+          "symbol_id": "backend/tests/api/routes/test_login.py::test_use_access_token"
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-current-user",
+      "mode": "keyword",
+      "question": "get_current_user 如何解析 JWT 并检查用户存在且仍处于激活状态？",
+      "scope": "code",
+      "expected_file": "backend/app/api/deps.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.0506,
+      "sources": [
+        {
+          "file": "backend/app/api/deps.py",
+          "start": 30,
+          "end": 46,
+          "symbol_id": "backend/app/api/deps.py::get_current_user"
+        },
+        {
+          "file": "backend/app/api/deps.py",
+          "start": 47,
+          "end": 51,
+          "symbol_id": null
+        },
+        {
+          "file": "backend/app/api/deps.py",
+          "start": 52,
+          "end": 57,
+          "symbol_id": "backend/app/api/deps.py::get_current_active_superuser"
+        },
+        {
+          "file": "backend/app/api/routes/users.py",
+          "start": 122,
+          "end": 126,
+          "symbol_id": "backend/app/api/routes/users.py::read_user_me"
+        },
+        {
+          "file": "backend/tests/api/routes/test_users.py",
+          "start": 26,
+          "end": 34,
+          "symbol_id": "backend/tests/api/routes/test_users.py::test_get_users_normal_user_me"
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-item-permission",
+      "mode": "keyword",
+      "question": "read_item 怎样区分项目不存在和普通用户无权读取其他人的项目？",
+      "scope": "code",
+      "expected_file": "backend/app/api/routes/items.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.0543,
+      "sources": [
+        {
+          "file": "backend/app/api/routes/items.py",
+          "start": 48,
+          "end": 57,
+          "symbol_id": "backend/app/api/routes/items.py::read_item"
+        },
+        {
+          "file": "backend/tests/api/routes/test_items.py",
+          "start": 27,
+          "end": 40,
+          "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item"
+        },
+        {
+          "file": "backend/tests/api/routes/test_items.py",
+          "start": 55,
+          "end": 65,
+          "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item_not_enough_permissions"
+        },
+        {
+          "file": "backend/tests/api/routes/test_items.py",
+          "start": 43,
+          "end": 52,
+          "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item_not_found"
+        },
+        {
+          "file": "backend/tests/api/routes/test_items.py",
+          "start": 68,
+          "end": 79,
+          "symbol_id": "backend/tests/api/routes/test_items.py::test_read_items"
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-backend-workflow",
+      "mode": "keyword",
+      "question": "后端开发应在哪里修改 SQLModel 数据模型、API 路由和 CRUD 工具？",
+      "scope": "documents",
+      "expected_file": "backend/README.md",
+      "file_rank": 1,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0477,
+      "sources": [
+        {
+          "file": "backend/README.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "README.md",
+          "page": 1,
+          "start": 1,
+          "end": 23
+        },
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 518,
+          "end": 540
+        },
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 636,
+          "end": 650
+        },
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 466,
+          "end": 479
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-development",
+      "mode": "keyword",
+      "question": "本地开发怎样用 Docker Compose 启动服务，后端 API 文档在哪个地址？",
+      "scope": "documents",
+      "expected_file": "development.md",
+      "file_rank": 2,
+      "symbol_hit_at_5": null,
+      "seconds": 0.042,
+      "sources": [
+        {
+          "file": "frontend/README.md",
+          "page": 1,
+          "start": 57,
+          "end": 116
+        },
+        {
+          "file": "development.md",
+          "page": 1,
+          "start": 52,
+          "end": 100
+        },
+        {
+          "file": "backend/README.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 324,
+          "end": 340
+        },
+        {
+          "file": "development.md",
+          "page": 1,
+          "start": 99,
+          "end": 132
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-login",
+      "mode": "hybrid",
+      "question": "登录接口 login_access_token 怎样验证账号并签发访问令牌？",
+      "scope": "code",
+      "expected_file": "backend/app/api/routes/login.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.058,
+      "sources": [
+        {
+          "file": "backend/app/api/routes/login.py",
+          "start": 24,
+          "end": 42,
+          "symbol_id": "backend/app/api/routes/login.py::login_access_token"
+        },
+        {
+          "file": "backend/tests/api/routes/test_login.py",
+          "start": 16,
+          "end": 25,
+          "symbol_id": "backend/tests/api/routes/test_login.py::test_get_access_token"
+        },
+        {
+          "file": "backend/tests/utils/user.py",
+          "start": 10,
+          "end": 19,
+          "symbol_id": "backend/tests/utils/user.py::user_authentication_headers"
+        },
+        {
+          "file": "backend/app/api/routes/login.py",
+          "start": 46,
+          "end": 50,
+          "symbol_id": "backend/app/api/routes/login.py::test_token"
+        },
+        {
+          "file": "backend/tests/api/routes/test_login.py",
+          "start": 28,
+          "end": 34,
+          "symbol_id": "backend/tests/api/routes/test_login.py::test_get_access_token_incorrect_password"
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-current-user",
+      "mode": "hybrid",
+      "question": "get_current_user 如何解析 JWT 并检查用户存在且仍处于激活状态？",
+      "scope": "code",
+      "expected_file": "backend/app/api/deps.py",
+      "file_rank": 1,
+      "symbol_hit_at_5": true,
+      "seconds": 0.0866,
+      "sources": [
+        {
+          "file": "backend/app/api/deps.py",
+          "start": 30,
+          "end": 46,
+          "symbol_id": "backend/app/api/deps.py::get_current_user"
+        },
+        {
+          "file": "backend/app/api/deps.py",
+          "start": 52,
+          "end": 57,
+          "symbol_id": "backend/app/api/deps.py::get_current_active_superuser"
+        },
+        {
+          "file": "backend/app/api/routes/users.py",
+          "start": 160,
+          "end": 176,
+          "symbol_id": "backend/app/api/routes/users.py::read_user_by_id"
+        },
+        {
+          "file": "backend/app/api/routes/users.py",
+          "start": 79,
+          "end": 97,
+          "symbol_id": "backend/app/api/routes/users.py::update_user_me"
+        },
+        {
+          "file": "backend/app/api/routes/users.py",
+          "start": 122,
+          "end": 126,
+          "symbol_id": "backend/app/api/routes/users.py::read_user_me"
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-item-permission",
+      "mode": "hybrid",
+      "question": "read_item 怎样区分项目不存在和普通用户无权读取其他人的项目？",
+      "scope": "code",
+      "expected_file": "backend/app/api/routes/items.py",
+      "file_rank": 3,
+      "symbol_hit_at_5": true,
+      "seconds": 0.0712,
+      "sources": [
+        {
+          "file": "backend/tests/api/routes/test_items.py",
+          "start": 55,
+          "end": 65,
+          "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item_not_enough_permissions"
+        },
+        {
+          "file": "backend/tests/api/routes/test_items.py",
+          "start": 27,
+          "end": 40,
+          "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item"
+        },
+        {
+          "file": "backend/app/api/routes/items.py",
+          "start": 48,
+          "end": 57,
+          "symbol_id": "backend/app/api/routes/items.py::read_item"
+        },
+        {
+          "file": "backend/app/api/routes/items.py",
+          "start": 14,
+          "end": 44,
+          "symbol_id": "backend/app/api/routes/items.py::read_items"
+        },
+        {
+          "file": "backend/tests/api/routes/test_items.py",
+          "start": 43,
+          "end": 52,
+          "symbol_id": "backend/tests/api/routes/test_items.py::test_read_item_not_found"
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-backend-workflow",
+      "mode": "hybrid",
+      "question": "后端开发应在哪里修改 SQLModel 数据模型、API 路由和 CRUD 工具？",
+      "scope": "documents",
+      "expected_file": "backend/README.md",
+      "file_rank": 3,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0623,
+      "sources": [
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 518,
+          "end": 540
+        },
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 636,
+          "end": 650
+        },
+        {
+          "file": "backend/README.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 558,
+          "end": 567
+        },
+        {
+          "file": "release-notes.md",
+          "page": 1,
+          "start": 566,
+          "end": 576
+        }
+      ]
+    },
+    {
+      "repository": "fastapi-template",
+      "id": "fastapi-development",
+      "mode": "hybrid",
+      "question": "本地开发怎样用 Docker Compose 启动服务，后端 API 文档在哪个地址？",
+      "scope": "documents",
+      "expected_file": "development.md",
+      "file_rank": 1,
+      "symbol_hit_at_5": null,
+      "seconds": 0.0673,
+      "sources": [
+        {
+          "file": "development.md",
+          "page": 1,
+          "start": 52,
+          "end": 100
+        },
+        {
+          "file": "frontend/README.md",
+          "page": 1,
+          "start": 57,
+          "end": 116
+        },
+        {
+          "file": "development.md",
+          "page": 1,
+          "start": 1,
+          "end": 53
+        },
+        {
+          "file": "backend/README.md",
+          "page": 1,
+          "start": 1,
+          "end": 44
+        },
+        {
+          "file": "development.md",
+          "page": 1,
+          "start": 99,
+          "end": 132
+        }
+      ]
+    }
+  ]
+}

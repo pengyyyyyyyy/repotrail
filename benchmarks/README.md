@@ -1,5 +1,7 @@
 # 固定评测集
 
+团队培训版增加了 Requests、Starlette 与 FastAPI 官方全栈模板组成的公开语料，提供固定版本、15 道代码与文档检索题、真实 API 记录、并发测试和浏览器截图。[2026-11-17 实测报告](reports/public-onboarding-2026-11-17.md) · [语料清单](public-onboarding.json)
+
 评测包含 Requests、Click、Flask 三个仓库，每个仓库五道入口与流程定位题。提交版本、参考符号和源码片段保存在 cases.json。参考答案由开发时的源码检查整理，独立人工复核待完成。
 
 ## 准备代码
